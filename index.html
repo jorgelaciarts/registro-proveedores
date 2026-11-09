@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Registro de Proveedores Electorales · Prototipo</title>
+<style>
+  :root{
+    --red:#c00000; --red-dark:#a00000; --navy:#1f2a6b; --navy-soft:#eef1fa;
+    --border:#c9ced8; --text:#222; --muted:#5b6475; --bg:#fff;
+    --ok-bg:#d9f2dd; --ok:#1e6b2e; --warn-bg:#fff1b8; --warn:#7a5a00;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"Segoe UI",Roboto,Arial,sans-serif;color:var(--text);background:#f3f4f7}
+  .app{max-width:1180px;margin:0 auto;background:var(--bg);min-height:100vh;display:flex;flex-direction:column}
+  header{background:var(--red);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:12px 22px}
+  .brand{display:flex;align-items:center;gap:16px}
+  .logo{width:34px;height:34px;background:#fff;color:var(--red);font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center;border-radius:3px;text-align:center;line-height:1}
+  .brand h1{font-size:19px;margin:0;font-weight:600}
+  .tag{font-size:11px;background:rgba(255,255,255,.2);padding:2px 8px;border-radius:10px;margin-left:8px;font-weight:500}
+  header nav a{color:#fff;text-decoration:none;font-size:13px}
+  header nav span{margin:0 6px}
+
+  .stepper{display:flex;justify-content:space-between;position:relative;padding:16px 60px 6px}
+  .stepper::before{content:"";position:absolute;top:28px;left:130px;right:130px;height:2px;background:#d9dde5;z-index:0}
+  .step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:200px;cursor:pointer;background:none;border:0;font:inherit}
+  .dot{width:26px;height:26px;border-radius:50%;border:1.5px solid #9aa2b1;background:#fff;color:#555;display:flex;align-items:center;justify-content:center;font-size:12px}
+  .step small{margin-top:8px;font-size:12px;color:var(--muted)}
+  .step.active .dot{background:var(--red);border-color:var(--red);color:#fff}
+  .step.active small{color:var(--navy);font-weight:600}
+  .step.done .dot{background:var(--navy);border-color:var(--navy);color:#fff}
+  .step.done small{color:var(--navy)}
+
+  main{flex:1;padding:8px 26px 20px}
+  h2{color:var(--navy);font-size:15px;margin:10px 0 12px}
+  .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px 14px}
+  .span2{grid-column:span 2}
+  label{display:block;font-size:12px;font-weight:600;color:#55606f;margin-bottom:4px}
+  input,select{width:100%;padding:7px 9px;border:1px solid var(--border);border-radius:3px;font:inherit;font-size:13px;background:#fff;height:31px}
+  input:focus,select:focus{outline:2px solid #9fb0e6;border-color:var(--navy)}
+  input.invalid{border-color:var(--red);background:#fff6f6}
+  .err{color:var(--red);font-size:11px;min-height:13px;margin-top:2px}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:34px}
+  .cols.split > div + div{border-left:1px solid #e3e6ec;padding-left:20px}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;border:1px solid #dfe3ea}
+  th{background:var(--navy-soft);color:var(--navy);text-align:left;padding:7px 10px;font-weight:600}
+  td{padding:7px 10px;border-top:1px solid #e6e9ef}
+  .r{text-align:right}
+  .del{background:none;border:0;color:#999;cursor:pointer;font-size:14px}
+  .del:hover{color:var(--red)}
+  .link{background:none;border:0;color:var(--red);font-weight:600;cursor:pointer;font-size:13px;padding:8px 0}
+  .addrow{display:flex;gap:8px;align-items:flex-end;margin-bottom:12px}
+  .addrow > div{flex:1}
+  .total{text-align:right;font-weight:700;color:var(--navy);font-size:13px;margin-top:6px}
+  .total.red{color:var(--red)}
+  .radio{display:flex;gap:30px;margin:8px 0 14px;font-size:13px}
+  .radio label{display:flex;align-items:center;gap:8px;font-weight:400;color:var(--text);cursor:pointer;margin:0}
+  .radio input{width:20px;height:20px;accent-color:var(--red)}
+  .inlineform{display:none;gap:8px;margin-top:8px;align-items:flex-end;flex-wrap:wrap}
+  .inlineform.show{display:flex}
+  .inlineform > div{flex:1;min-width:110px}
+
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:16px}
+  .card{background:#f2f4fb;border-radius:6px;padding:10px 14px}
+  .card small{color:var(--muted);font-size:12px}
+  .card b{display:block;color:var(--navy);font-size:15px;margin-top:6px}
+  .pill{display:inline-block;padding:2px 12px;border-radius:10px;font-size:11.5px;border:0;font-weight:600;cursor:pointer}
+  .pill.ok{background:var(--ok-bg);color:var(--ok)}
+  .pill.pend{background:var(--warn-bg);color:var(--warn)}
+  .attach{color:var(--red);font-weight:600;cursor:pointer}
+  .attached{color:var(--navy)}
+  .check{display:flex;gap:10px;align-items:center;margin:10px 0;font-size:13px;font-weight:400;color:var(--text)}
+  .check input{width:18px;height:18px;accent-color:var(--navy)}
+  td input[type=date]{height:26px;padding:2px 4px;font-size:12px;width:120px}
+
+  footer.actions{display:flex;justify-content:space-between;align-items:center;padding:16px 26px 22px;gap:12px}
+  .btn{padding:0 24px;height:34px;border-radius:4px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;min-width:130px}
+  .btn-out{background:#fff;border:1.5px solid var(--navy);color:var(--navy)}
+  .btn-red{background:var(--red);border:0;color:#fff;min-width:160px}
+  .btn-red:hover{background:var(--red-dark)}
+  .btn-sm{height:31px;min-width:100px}
+  .note{background:var(--ok-bg);color:var(--ok);font-size:12px;font-weight:600;padding:8px 14px;border-radius:4px;flex:1;max-width:450px}
+  .right{display:flex;gap:16px}
+  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:5px;font-size:13px;opacity:0;transition:.3s;pointer-events:none}
+  .toast.show{opacity:1}
+  .hidden{display:none}
+  .done-box{text-align:center;padding:60px 20px}
+  .done-box h2{font-size:20px}
+  @media(max-width:860px){
+    .grid4,.cards{grid-template-columns:1fr 1fr}
+    .cols{grid-template-columns:1fr}
+    .cols.split > div + div{border-left:0;padding-left:0}
+    .stepper{padding:16px 10px 6px}.stepper::before{left:40px;right:40px}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div class="brand">
+      <div class="logo">LOGO</div>
+      <h1>Registro de Proveedores Electorales <span class="tag">Prototipo</span></h1>
+    </div>
+    <nav><a href="#">Mi cuenta</a><span>·</span><a href="#">Ayuda</a><span>·</span><a href="#" id="salir">Salir</a></nav>
+  </header>
+
+  <div class="stepper" id="stepper"></div>
+
+  <main>
+    <!-- PASO 1 -->
+    <section data-step="1">
+      <h2>1. Identificación del proveedor</h2>
+      <div class="grid4">
+        <div><label>RUT del proveedor</label><input id="rut" placeholder="76.123.456-7"><div class="err"></div></div>
+        <div><label>Razón social</label><input id="razon"><div class="err"></div></div>
+        <div><label>Nombre de fantasía</label><input id="fantasia"><div class="err"></div></div>
+        <div><label>Categoría de gasto</label>
+          <select id="categoria">
+            <option value="">Seleccione…</option>
+            <option>Propaganda y publicidad</option><option>Arriendo de bienes muebles e inmuebles</option>
+            <option>Servicios de transporte</option><option>Servicios profesionales</option>
+            <option>Encuestas y estudios</option><option>Impresiones y gráfica</option><option>Otros gastos</option>
+          </select><div class="err"></div></div>
+        <div><label>Representante legal</label><input id="repNombre"><div class="err"></div></div>
+        <div><label>RUT representante</label><input id="repRut" placeholder="11.111.111-1"><div class="err"></div></div>
+        <div><label>Correo electrónico</label><input id="email" type="email"><div class="err"></div></div>
+        <div><label>Teléfono</label><input id="telefono" placeholder="+56 9 1234 5678"><div class="err"></div></div>
+        <div><label>Región</label><select id="region"></select><div class="err"></div></div>
+        <div><label>Comuna</label><select id="comuna"></select><div class="err"></div></div>
+        <div class="span2"><label>Dirección</label><input id="direccion"><div class="err"></div></div>
+      </div>
+    </section>
+
+    <!-- PASO 2 -->
+    <section data-step="2" class="hidden">
+      <div class="cols">
+        <div>
+          <h2>2.1 Socios y beneficiarios finales</h2>
+          <table>
+            <thead><tr><th>RUT</th><th>Nombre</th><th class="r">Participación</th><th>Beneficiario final</th><th></th></tr></thead>
+            <tbody id="tSocios"></tbody>
+          </table>
+          <button class="link" data-toggle="fSocio">+ Agregar socio o beneficiario final</button>
+          <div class="inlineform" id="fSocio">
+            <div><label>RUT</label><input id="sRut"></div>
+            <div><label>Nombre</label><input id="sNombre"></div>
+            <div><label>% Particip.</label><input id="sPct" type="number" min="0" max="100"></div>
+            <div><label>Benef. final</label><select id="sBen"><option>Sí</option><option>No</option></select></div>
+            <button class="btn btn-red btn-sm" id="addSocio">Agregar</button>
+          </div>
+          <div class="err" id="errSocios"></div>
+        </div>
+        <div>
+          <h2>2.2 Vínculos con candidaturas, partidos o administradores</h2>
+          <div style="font-size:13px">¿Algún socio, representante o beneficiario final tiene vínculos?</div>
+          <div class="radio">
+            <label><input type="radio" name="vinc" value="si"> Sí</label>
+            <label><input type="radio" name="vinc" value="no"> No</label>
+          </div>
+          <div id="vincBox">
+            <table>
+              <thead><tr><th>Persona</th><th>Tipo de vínculo</th><th>Candidatura, partido o administrador</th><th></th></tr></thead>
+              <tbody id="tVinc"></tbody>
+            </table>
+            <button class="link" data-toggle="fVinc">+ Agregar vínculo</button>
+            <div class="inlineform" id="fVinc">
+              <div><label>Persona</label><select id="vPersona"></select></div>
+              <div><label>Tipo</label><select id="vTipo"><option>Parentesco</option><option>Militancia</option><option>Relación laboral</option><option>Administrador electoral</option><option>Otro</option></select></div>
+              <div><label>Candidatura / partido</label><input id="vCand" placeholder="Candidatura B · Concejalía"></div>
+              <button class="btn btn-red btn-sm" id="addVinc">Agregar</button>
+            </div>
+          </div>
+          <div class="err" id="errVinc"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PASO 3 -->
+    <section data-step="3" class="hidden">
+      <div class="cols split">
+        <div>
+          <h2>3.1 Documentos emitidos</h2>
+          <div class="addrow">
+            <div style="flex:1.3"><label>Tipo de documento</label><select id="dTipo"><option>Factura electrónica</option><option>Factura exenta</option><option>Boleta de honorarios</option><option>Boleta electrónica</option></select></div>
+            <div style="flex:.6"><label>N°</label><input id="dNum"></div>
+            <div style="flex:1.2"><label>Candidatura</label><select id="dCand" class="candSel"></select></div>
+            <div><label>Monto ($)</label><input id="dMonto" class="money"></div>
+            <button class="btn btn-red btn-sm" id="addDoc">Agregar</button>
+          </div>
+          <table>
+            <thead><tr><th>N°</th><th>Tipo</th><th>Candidatura</th><th class="r">Monto</th><th></th></tr></thead>
+            <tbody id="tDocs"></tbody>
+          </table>
+          <div class="total" id="totEmit"></div>
+        </div>
+        <div>
+          <h2>3.2 Documentos anulados</h2>
+          <div class="addrow">
+            <div><label>N° anulado</label><input id="aNum"></div>
+            <div><label>Nota de crédito N°</label><input id="aNC"></div>
+            <div><label>Monto ($)</label><input id="aMonto" class="money"></div>
+            <button class="btn btn-red btn-sm" id="addAnul">Agregar</button>
+          </div>
+          <div class="addrow" style="margin-top:-4px">
+            <div><label>Candidatura (si el N° no está en emitidos)</label><select id="aCand" class="candSel"></select></div>
+          </div>
+          <table>
+            <thead><tr><th>N° anulado</th><th>N° NC</th><th>Candidatura</th><th class="r">Monto</th><th></th></tr></thead>
+            <tbody id="tAnul"></tbody>
+          </table>
+          <div class="total red" id="totAnul"></div>
+        </div>
+      </div>
+      <div class="err" id="errDocs"></div>
+    </section>
+
+    <!-- PASO 4 -->
+    <section data-step="4" class="hidden">
+      <h2>4. Resumen de la inscripción</h2>
+      <div class="cards">
+        <div class="card"><small>Proveedor</small><b id="cProv"></b></div>
+        <div class="card"><small>Socios declarados</small><b id="cSoc"></b></div>
+        <div class="card"><small>Documentos emitidos</small><b id="cEmit"></b></div>
+        <div class="card"><small>Documentos anulados</small><b id="cAnul"></b></div>
+      </div>
+      <div class="cols" style="grid-template-columns:1.6fr 1fr">
+        <div>
+          <h2>Registro de pago de documentos emitidos</h2>
+          <table>
+            <thead><tr><th>N°</th><th>Candidatura</th><th class="r">Monto</th><th>Estado de pago</th><th>Fecha de pago</th><th>Comprobante</th></tr></thead>
+            <tbody id="tPagos"></tbody>
+          </table>
+          <div class="total" id="totPagos"></div>
+          <input type="file" id="fileComp" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+        </div>
+        <div>
+          <h2>Declaración del proveedor</h2>
+          <label class="check"><input type="checkbox" class="decl"> La información entregada es verídica y completa.</label>
+          <label class="check"><input type="checkbox" class="decl"> Informaré anulaciones, modificaciones y notas de crédito.</label>
+          <label class="check"><input type="checkbox" class="decl"> Acreditaré el pago cuando la autoridad electoral lo requiera.</label>
+          <div class="err" id="errDecl"></div>
+        </div>
+      </div>
+    </section>
+
+    <section data-step="5" class="hidden">
+      <div class="done-box">
+        <h2>✓ Inscripción enviada</h2>
+        <p>Folio: <b id="folio"></b></p>
+        <p style="color:var(--muted);font-size:13px">Se descargó un comprobante en formato JSON con los datos ingresados.</p>
+        <button class="btn btn-out" id="nueva">Nueva inscripción</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="actions" id="actions">
+    <button class="btn btn-out" id="volver">← Volver</button>
+    <div class="note hidden" id="nota">Inscripción gratuita · requisito para reembolsos sobre 30 UF</div>
+    <div class="right">
+      <button class="btn btn-out" id="guardar">Guardar borrador</button>
+      <button class="btn btn-red" id="continuar">Continuar →</button>
+    </div>
+  </footer>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+/* ===================== CONFIGURACIÓN ===================== */
+const CANDIDATURAS = ["Candidatura A","Candidatura B","Candidatura C"];
+const REGIONES = {
+  "Región de Arica y Parinacota":["Arica","Camarones","Putre","General Lagos"],
+  "Región de Tarapacá":["Iquique","Alto Hospicio","Pozo Almonte","Pica","Huara"],
+  "Región de Antofagasta":["Antofagasta","Calama","Tocopilla","Mejillones","Taltal","San Pedro de Atacama"],
+  "Región de Atacama":["Copiapó","Vallenar","Caldera","Chañaral","Diego de Almagro"],
+  "Región de Coquimbo":["La Serena","Coquimbo","Ovalle","Illapel","Vicuña","Los Vilos"],
+  "Región de Valparaíso":["Valparaíso","Viña del Mar","Quilpué","Villa Alemana","San Antonio","Quillota","Los Andes","San Felipe","Concón"],
+  "Región Metropolitana de Santiago":["Santiago","Providencia","Las Condes","Ñuñoa","Maipú","Puente Alto","La Florida","San Bernardo","Vitacura","Estación Central"],
+  "Región del Libertador Gral. Bernardo O'Higgins":["Rancagua","San Fernando","Rengo","Machalí","Santa Cruz","Pichilemu"],
+  "Región del Maule":["Talca","Curicó","Linares","Constitución","Cauquenes"],
+  "Región de Ñuble":["Chillán","Chillán Viejo","San Carlos","Bulnes","Quirihue"],
+  "Región del Biobío":["Concepción","Talcahuano","Los Ángeles","Coronel","San Pedro de la Paz","Chiguayante"],
+  "Región de La Araucanía":["Temuco","Padre Las Casas","Villarrica","Angol","Pucón"],
+  "Región de Los Ríos":["Valdivia","La Unión","Río Bueno","Panguipulli"],
+  "Región de Los Lagos":["Puerto Montt","Osorno","Castro","Puerto Varas","Ancud"],
+  "Región de Aysén":["Coyhaique","Puerto Aysén","Chile Chico","Cochrane"],
+  "Región de Magallanes":["Punta Arenas","Puerto Natales","Porvenir","Puerto Williams"]
+};
+const STEPS = ["Identificación","Propiedad y vínculos","Documentos","Declaración y envío"];
+const STORAGE_KEY = "registroProveedoresBorrador";
+
+/* ===================== ESTADO ===================== */
+const emptyState = () => ({
+  step:1,
+  prov:{rut:"",razon:"",fantasia:"",categoria:"",repNombre:"",repRut:"",email:"",telefono:"",region:"",comuna:"",direccion:""},
+  socios:[], vinculos:null, listaVinc:[], docs:[], anulados:[], pagos:{}, decl:[false,false,false]
+});
+let S = emptyState();
+
+/* ===================== UTILIDADES ===================== */
+const $ = id => document.getElementById(id);
+const fmt = n => "$" + Number(n||0).toLocaleString("es-CL");
+const num = s => parseInt(String(s).replace(/\D/g,""),10) || 0;
+const esc = s => String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function toast(msg){const t=$("toast");t.textContent=msg;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),2200);}
+
+function cleanRut(r){return String(r).replace(/[^0-9kK]/g,"").toUpperCase();}
+function validRut(r){
+  const c=cleanRut(r); if(c.length<2) return false;
+  const body=c.slice(0,-1), dv=c.slice(-1); if(!/^\d+$/.test(body)) return false;
+  let sum=0,m=2; for(let i=body.length-1;i>=0;i--){sum+=+body[i]*m;m=m===7?2:m+1;}
+  const res=11-(sum%11); const exp=res===11?"0":res===10?"K":String(res);
+  return exp===dv;
+}
+function formatRut(r){
+  const c=cleanRut(r); if(c.length<2) return r;
+  const body=c.slice(0,-1).replace(/\B(?=(\d{3})+(?!\d))/g,".");
+  return body+"-"+c.slice(-1);
+}
+
+/* ===================== STEPPER ===================== */
+function renderStepper(){
+  $("stepper").innerHTML = STEPS.map((n,i)=>{
+    const k=i+1, cls = S.step===k?"active":(S.step>k?"done":"");
+    return `<button class="step ${cls}" data-go="${k}"><span class="dot">${S.step>k?"✓":k}</span><small>${n}</small></button>`;
+  }).join("");
+  $("stepper").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
+    const k=+b.dataset.go; if(S.step>4) return;
+    if(k<S.step) go(k); else { for(let s=S.step;s<k;s++){ if(!validate(s)) return go(s);} go(k); }
+  });
+}
+
+function go(k){
+  S.step=k;
+  document.querySelectorAll("section[data-step]").forEach(s=>s.classList.toggle("hidden",+s.dataset.step!==k));
+  $("stepper").style.display = k>4?"none":"";
+  $("actions").style.display = k>4?"none":"";
+  $("volver").style.visibility = k===1?"hidden":"visible";
+  $("nota").classList.toggle("hidden",k!==4);
+  $("continuar").textContent = k===4?"Enviar inscripción":"Continuar →";
+  renderStepper(); renderAll();
+  window.scrollTo(0,0);
+}
+
+/* ===================== PASO 1 ===================== */
+const P1 = ["rut","razon","fantasia","categoria","repNombre","repRut","email","telefono","region","comuna","direccion"];
+function initStep1(){
+  $("region").innerHTML = `<option value="">Seleccione…</option>` + Object.keys(REGIONES).map(r=>`<option>${r}</option>`).join("");
+  $("region").onchange = ()=>{ S.prov.region=$("region").value; S.prov.comuna=""; fillComunas(); };
+  P1.forEach(id=>{
+    const el=$(id);
+    el.addEventListener("input",()=>{S.prov[id]=el.value; el.classList.remove("invalid"); el.nextElementSibling.textContent="";});
+    el.addEventListener("change",()=>{S.prov[id]=el.value;});
+  });
+  ["rut","repRut"].forEach(id=>$(id).addEventListener("blur",()=>{ if($(id).value){ $(id).value=formatRut($(id).value); S.prov[id]=$(id).value; }}));
+}
+function fillComunas(){
+  const list = REGIONES[S.prov.region]||[];
+  $("comuna").innerHTML = `<option value="">Seleccione…</option>` + list.map(c=>`<option>${c}</option>`).join("");
+  $("comuna").value = S.prov.comuna;
+}
+function loadStep1(){
+  P1.forEach(id=>{ if(id!=="comuna") $(id).value=S.prov[id]; });
+  fillComunas();
+}
+function setErr(id,msg){const el=$(id);el.classList.toggle("invalid",!!msg);el.nextElementSibling.textContent=msg||"";return !msg;}
+function validate1(){
+  let ok=true;
+  P1.forEach(id=>{ if(!String(S.prov[id]).trim()) ok=setErr(id,"Campo obligatorio")&&ok; else setErr(id,""); });
+  if(S.prov.rut && !validRut(S.prov.rut)) ok=setErr("rut","RUT inválido")&&ok;
+  if(S.prov.repRut && !validRut(S.prov.repRut)) ok=setErr("repRut","RUT inválido")&&ok;
+  if(S.prov.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(S.prov.email)) ok=setErr("email","Correo inválido")&&ok;
+  if(S.prov.telefono && S.prov.telefono.replace(/\D/g,"").length<8) ok=setErr("telefono","Teléfono inválido")&&ok;
+  return ok;
+}
+
+/* ===================== PASO 2 ===================== */
+function renderStep2(){
+  $("tSocios").innerHTML = S.socios.length ? S.socios.map((s,i)=>`<tr><td>${esc(s.rut)}</td><td>${esc(s.nombre)}</td><td class="r">${s.pct}%</td><td>${s.ben}</td><td><button class="del" data-dsoc="${i}">✕</button></td></tr>`).join("")
+    : `<tr><td colspan="5" style="color:#999">Sin socios declarados</td></tr>`;
+  document.querySelectorAll("[data-dsoc]").forEach(b=>b.onclick=()=>{S.socios.splice(+b.dataset.dsoc,1);renderStep2();});
+  document.querySelectorAll("input[name=vinc]").forEach(r=>r.checked = r.value===S.vinculos);
+  $("vincBox").style.display = S.vinculos==="si"?"":"none";
+  const personas = [...S.socios.map(s=>s.nombre), S.prov.repNombre?`${S.prov.repNombre} (Rep. legal)`:null].filter(Boolean);
+  $("vPersona").innerHTML = personas.map(p=>`<option>${esc(p)}</option>`).join("");
+  $("tVinc").innerHTML = S.listaVinc.length ? S.listaVinc.map((v,i)=>`<tr><td>${esc(v.persona)}</td><td>${esc(v.tipo)}</td><td>${esc(v.cand)}</td><td><button class="del" data-dvin="${i}">✕</button></td></tr>`).join("")
+    : `<tr><td colspan="4" style="color:#999">Sin vínculos registrados</td></tr>`;
+  document.querySelectorAll("[data-dvin]").forEach(b=>b.onclick=()=>{S.listaVinc.splice(+b.dataset.dvin,1);renderStep2();});
+}
+function initStep2(){
+  document.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>$(b.dataset.toggle).classList.toggle("show"));
+  $("sRut").addEventListener("blur",()=>{ if($("sRut").value) $("sRut").value=formatRut($("sRut").value); });
+  $("addSocio").onclick=()=>{
+    const rut=$("sRut").value, nombre=$("sNombre").value.trim(), pct=parseFloat($("sPct").value);
+    const e=$("errSocios");
+    if(!validRut(rut)) return e.textContent="RUT del socio inválido";
+    if(S.socios.some(s=>cleanRut(s.rut)===cleanRut(rut))) return e.textContent="Ese RUT ya está declarado";
+    if(!nombre) return e.textContent="Ingrese el nombre";
+    if(!(pct>0&&pct<=100)) return e.textContent="Participación entre 0 y 100";
+    const tot=S.socios.reduce((a,s)=>a+s.pct,0)+pct;
+    if(tot>100.0001) return e.textContent=`La participación total superaría 100% (${tot}%)`;
+    e.textContent="";
+    S.socios.push({rut:formatRut(rut),nombre,pct,ben:$("sBen").value});
+    ["sRut","sNombre","sPct"].forEach(i=>$(i).value="");
+    renderStep2();
+  };
+  document.querySelectorAll("input[name=vinc]").forEach(r=>r.onchange=()=>{S.vinculos=r.value;$("errVinc").textContent="";renderStep2();});
+  $("addVinc").onclick=()=>{
+    const persona=$("vPersona").value, cand=$("vCand").value.trim();
+    if(!persona) return $("errVinc").textContent="Primero agregue socios";
+    if(!cand) return $("errVinc").textContent="Indique la candidatura, partido o administrador";
+    $("errVinc").textContent="";
+    S.listaVinc.push({persona,tipo:$("vTipo").value,cand}); $("vCand").value="";
+    renderStep2();
+  };
+}
+function validate2(){
+  let ok=true;
+  const tot=S.socios.reduce((a,s)=>a+s.pct,0);
+  if(!S.socios.length){$("errSocios").textContent="Debe declarar al menos un socio o beneficiario final";ok=false;}
+  else if(Math.abs(tot-100)>0.001){$("errSocios").textContent=`La participación debe sumar 100% (actual: ${tot}%)`;ok=false;}
+  else if(!S.socios.some(s=>s.ben==="Sí")){$("errSocios").textContent="Debe indicar al menos un beneficiario final";ok=false;}
+  else $("errSocios").textContent="";
+  if(!S.vinculos){$("errVinc").textContent="Responda si existen vínculos";ok=false;}
+  else if(S.vinculos==="si"&&!S.listaVinc.length){$("errVinc").textContent="Agregue al menos un vínculo";ok=false;}
+  return ok;
+}
+
+/* ===================== PASO 3 ===================== */
+function initStep3(){
+  document.querySelectorAll(".candSel").forEach(s=>s.innerHTML=CANDIDATURAS.map(c=>`<option>${c}</option>`).join(""));
+  document.querySelectorAll(".money").forEach(i=>i.addEventListener("input",()=>{const n=num(i.value);i.value=n?n.toLocaleString("es-CL"):"";}));
+  $("addDoc").onclick=()=>{
+    const n=num($("dNum").value), monto=num($("dMonto").value), e=$("errDocs");
+    if(!n) return e.textContent="Ingrese el N° del documento";
+    if(!monto) return e.textContent="Ingrese un monto válido";
+    if(S.docs.some(d=>d.num===n&&d.tipo===$("dTipo").value)) return e.textContent="Ese documento ya fue agregado";
+    e.textContent="";
+    S.docs.push({tipo:$("dTipo").value,num:n,cand:$("dCand").value,monto});
+    $("dNum").value=$("dMonto").value=""; renderStep3();
+  };
+  $("addAnul").onclick=()=>{
+    const n=num($("aNum").value), nc=num($("aNC").value), monto=num($("aMonto").value), e=$("errDocs");
+    if(!n||!nc||!monto) return e.textContent="Complete N° anulado, nota de crédito y monto";
+    if(S.anulados.some(a=>a.num===n)) return e.textContent="Ese documento ya fue anulado";
+    const ref=S.docs.find(d=>d.num===n);
+    if(ref && monto>ref.monto) return e.textContent="El monto anulado supera el monto del documento";
+    e.textContent="";
+    S.anulados.push({num:n,nc,cand:ref?ref.cand:$("aCand").value,monto});
+    $("aNum").value=$("aNC").value=$("aMonto").value=""; renderStep3();
+  };
+}
+function renderStep3(){
+  const n = x=>Number(x).toLocaleString("es-CL");
+  $("tDocs").innerHTML = S.docs.length ? S.docs.map((d,i)=>`<tr><td>${n(d.num)}</td><td>${esc(d.tipo)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td><td><button class="del" data-ddoc="${i}">✕</button></td></tr>`).join("")
+    : `<tr><td colspan="5" style="color:#999">Sin documentos</td></tr>`;
+  $("tAnul").innerHTML = S.anulados.length ? S.anulados.map((a,i)=>`<tr><td>${n(a.num)}</td><td>${n(a.nc)}</td><td>${esc(a.cand)}</td><td class="r">${fmt(a.monto)}</td><td><button class="del" data-danu="${i}">✕</button></td></tr>`).join("")
+    : `<tr><td colspan="5" style="color:#999">Sin anulaciones</td></tr>`;
+  document.querySelectorAll("[data-ddoc]").forEach(b=>b.onclick=()=>{const d=S.docs.splice(+b.dataset.ddoc,1)[0];delete S.pagos[d.tipo+"|"+d.num];renderStep3();});
+  document.querySelectorAll("[data-danu]").forEach(b=>b.onclick=()=>{S.anulados.splice(+b.dataset.danu,1);renderStep3();});
+  $("totEmit").textContent = "Total emitido: "+fmt(sum(S.docs));
+  $("totAnul").textContent = "Total anulado: "+fmt(sum(S.anulados));
+}
+const sum = arr => arr.reduce((a,x)=>a+x.monto,0);
+function validate3(){
+  if(!S.docs.length){$("errDocs").textContent="Debe registrar al menos un documento emitido";return false;}
+  $("errDocs").textContent=""; return true;
+}
+
+/* ===================== PASO 4 ===================== */
+let pendingUpload=null;
+function pago(d){const k=d.tipo+"|"+d.num; return S.pagos[k] ||= {estado:"Pendiente",fecha:"",archivo:""};}
+function renderStep4(){
+  $("cProv").textContent = S.prov.razon||"—";
+  $("cSoc").textContent = `${S.socios.length} · ${S.vinculos==="si"?S.listaVinc.length:0} vínculo${S.listaVinc.length===1&&S.vinculos==="si"?"":"s"}`;
+  $("cEmit").textContent = `${S.docs.length} · ${fmt(sum(S.docs))}`;
+  $("cAnul").textContent = `${S.anulados.length} · ${fmt(sum(S.anulados))}`;
+  let pag=0,pen=0;
+  $("tPagos").innerHTML = S.docs.map((d,i)=>{
+    const p=pago(d); p.estado==="Pagado"?pag+=d.monto:pen+=d.monto;
+    const ok=p.estado==="Pagado";
+    return `<tr><td>${d.num.toLocaleString("es-CL")}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>
+      <td><button class="pill ${ok?"ok":"pend"}" data-est="${i}" title="Cambiar estado">${p.estado}</button></td>
+      <td>${ok?`<input type="date" data-fec="${i}" value="${p.fecha}">`:"–"}</td>
+      <td>${p.archivo?`<span class="attached" title="${esc(p.archivo)}">✓ Adjunto</span> <button class="del" data-rmf="${i}">✕</button>`:`<span class="attach" data-up="${i}">+ Adjuntar</span>`}</td></tr>`;
+  }).join("");
+  $("totPagos").textContent = `Pagado: ${fmt(pag)}  ·  Pendiente: ${fmt(pen)}`;
+  document.querySelectorAll("[data-est]").forEach(b=>b.onclick=()=>{const p=pago(S.docs[+b.dataset.est]);p.estado=p.estado==="Pagado"?"Pendiente":"Pagado";if(p.estado==="Pagado"&&!p.fecha)p.fecha=new Date().toISOString().slice(0,10);renderStep4();});
+  document.querySelectorAll("[data-fec]").forEach(i=>i.onchange=()=>{pago(S.docs[+i.dataset.fec]).fecha=i.value;});
+  document.querySelectorAll("[data-up]").forEach(s=>s.onclick=()=>{pendingUpload=+s.dataset.up;$("fileComp").value="";$("fileComp").click();});
+  document.querySelectorAll("[data-rmf]").forEach(b=>b.onclick=()=>{pago(S.docs[+b.dataset.rmf]).archivo="";renderStep4();});
+  document.querySelectorAll(".decl").forEach((c,i)=>{c.checked=S.decl[i];c.onchange=()=>{S.decl[i]=c.checked;$("errDecl").textContent="";};});
+}
+function validate4(){
+  if(!S.decl.every(Boolean)){$("errDecl").textContent="Debe aceptar las tres declaraciones";return false;}
+  const sinFecha=S.docs.filter(d=>pago(d).estado==="Pagado"&&!pago(d).fecha);
+  if(sinFecha.length){$("errDecl").textContent="Indique la fecha de pago de los documentos pagados";return false;}
+  return true;
+}
+
+/* ===================== GENERAL ===================== */
+function validate(s){return [null,validate1,validate2,validate3,validate4][s]();}
+function renderAll(){ if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderStep4(); }
+
+function saveDraft(silent){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(S)); if(!silent) toast("Borrador guardado");}
+  catch(e){ if(!silent) toast("No se pudo guardar el borrador en este navegador"); }
+}
+function loadDraft(){
+  try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); if(d&&d.prov){S=Object.assign(emptyState(),d); if(S.step>4)S.step=1; return true;}}catch(e){}
+  return false;
+}
+function submit(){
+  const folio="RPE-"+new Date().getFullYear()+"-"+Math.random().toString(36).slice(2,8).toUpperCase();
+  const payload={folio,fechaEnvio:new Date().toISOString(),proveedor:S.prov,socios:S.socios,
+    tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
+    documentosEmitidos:S.docs.map(d=>({...d,pago:pago(d)})),documentosAnulados:S.anulados,
+    totales:{emitido:sum(S.docs),anulado:sum(S.anulados)},declaraciones:S.decl};
+  /* Aquí se conectaría el backend: fetch("/api/inscripciones",{method:"POST",body:JSON.stringify(payload)}) */
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
+  a.download=folio+".json"; a.click();
+  try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+  $("folio").textContent=folio; go(5);
+}
+
+$("continuar").onclick=()=>{ if(!validate(S.step)) return toast("Revise los campos marcados"); if(S.step===4) return submit(); saveDraft(true); go(S.step+1); };
+$("volver").onclick=()=>go(S.step-1);
+$("guardar").onclick=()=>saveDraft(false);
+$("nueva").onclick=()=>{S=emptyState();loadStep1();go(1);};
+$("salir").onclick=e=>{e.preventDefault();saveDraft(true);toast("Sesión cerrada · borrador guardado");};
+$("fileComp").onchange=()=>{const f=$("fileComp").files[0]; if(f&&pendingUpload!=null){ if(f.size>5*1024*1024) return toast("Archivo supera 5 MB"); pago(S.docs[pendingUpload]).archivo=f.name; renderStep4(); toast("Comprobante adjuntado"); }};
+
+initStep1(); initStep2(); initStep3();
+if(loadDraft()) toast("Borrador recuperado");
+loadStep1(); go(S.step);
+</script>
+</body>
+</html>
