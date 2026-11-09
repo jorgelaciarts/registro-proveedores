@@ -379,18 +379,18 @@ function renderStepper(){
   $("stepper").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
     const k=+b.dataset.go; if(S.step>5) return;
     if(k<=4) return go(k);           // pasos 1-4 siempre navegables (el resumen muestra lo pendiente)
-    for(let s=1;s<5;s++){ if(!validate(s)) return go(s===4?4:s); } go(k);
+    if(!validateResumen()){ toast("Complete lo pendiente antes de declarar"); return go(4); } go(k);
   });
 }
 
 function go(k){
   S.step=k;
   document.querySelectorAll("section[data-step]").forEach(s=>s.classList.toggle("hidden",+s.dataset.step!==k));
-  $("stepper").style.display = k>4?"none":"";
-  $("actions").style.display = k>4?"none":"";
+  $("stepper").style.display = k>5?"none":"";
+  $("actions").style.display = k>5?"none":"";
   $("volver").style.visibility = k===1?"hidden":"visible";
-  $("nota").classList.toggle("hidden",k!==4);
-  $("continuar").textContent = k===4?"Enviar inscripción":"Continuar →";
+  $("nota").classList.toggle("hidden",k!==5);
+  $("continuar").textContent = k===5?"Enviar inscripción":(k===4?"Ir a declaración →":"Continuar →");
   renderStepper(); renderAll();
   window.scrollTo(0,0);
 }
@@ -551,36 +551,147 @@ function validate4(){
   return true;
 }
 
+/* ===================== PASO 4: RESUMEN ===================== */
+const LABELS={rut:"RUT del proveedor",razon:"Razón social",fantasia:"Nombre de fantasía",categoria:"Categoría de gasto",
+  repNombre:"Representante legal",repRut:"RUT representante",email:"Correo electrónico",telefono:"Teléfono",
+  region:"Región",comuna:"Comuna",direccion:"Dirección"};
+const fdt = iso => iso ? new Date(iso).toLocaleString("es-CL",{dateStyle:"short",timeStyle:"short"}) : "—";
+const fd = ymd => ymd ? ymd.split("-").reverse().join("-") : "–";
+const n0 = x => Number(x).toLocaleString("es-CL");
+
+function issues(){
+  const out={1:[],2:[],3:[]};
+  if(!validate1()) P1.forEach(id=>{const m=$(id).nextElementSibling.textContent; if(m) out[1].push(`${LABELS[id]}: ${m.toLowerCase()}`);});
+  if(!validate2()) ["errSocios","errVinc"].forEach(id=>{const m=$(id).textContent; if(m) out[2].push(m);});
+  if(!validate3()) out[3].push($("errDocs").textContent);
+  return out;
+}
+function validateResumen(){const i=issues(); return !i[1].length&&!i[2].length&&!i[3].length;}
+
+function block(title,step,iss,body){
+  return `<div class="sum-block"><div class="sum-head"><h3>${title}</h3><div class="tools">
+    <span class="badge ${iss.length?"bad":"ok"}">${iss.length?"Pendiente":"Completo"}</span>
+    <button class="edit" data-edit="${step}">Editar</button></div></div>${body}
+    ${iss.length?`<ul class="issues">${iss.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>`:""}</div>`;
+}
+function tablaSocios(){
+  return `<table><thead><tr><th>RUT</th><th>Nombre</th><th class="r">Participación</th><th>Beneficiario final</th></tr></thead><tbody>${
+    S.socios.map(s=>`<tr><td>${esc(s.rut)}</td><td>${esc(s.nombre)}</td><td class="r">${s.pct}%</td><td>${s.ben}</td></tr>`).join("")||`<tr><td colspan="4" style="color:#999">Sin socios</td></tr>`}</tbody></table>`;
+}
+function tablaVinc(){
+  if(S.vinculos!=="si") return `<p style="font-size:13px;margin:8px 0 0">Vínculos declarados: <b>${S.vinculos==="no"?"No":"Sin responder"}</b></p>`;
+  return `<p style="font-size:13px;margin:10px 0 6px">Vínculos declarados: <b>Sí</b></p><table><thead><tr><th>Persona</th><th>Tipo de vínculo</th><th>Candidatura, partido o administrador</th></tr></thead><tbody>${
+    S.listaVinc.map(v=>`<tr><td>${esc(v.persona)}</td><td>${esc(v.tipo)}</td><td>${esc(v.cand)}</td></tr>`).join("")||`<tr><td colspan="3" style="color:#999">Sin vínculos</td></tr>`}</tbody></table>`;
+}
+function tablaDocs(conPago){
+  return `<table><thead><tr><th>N°</th><th>Tipo</th><th>Candidatura</th><th class="r">Monto</th>${conPago?"<th>Estado</th><th>Fecha pago</th><th>Comprobante</th>":""}</tr></thead><tbody>${
+    S.docs.map(d=>{const p=pago(d);return `<tr><td>${n0(d.num)}</td><td>${esc(d.tipo)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>${conPago?`<td>${p.estado}</td><td>${p.estado==="Pagado"?fd(p.fecha):"–"}</td><td>${p.archivo?esc(p.archivo):"–"}</td>`:""}</tr>`;}).join("")
+    ||`<tr><td colspan="${conPago?7:4}" style="color:#999">Sin documentos</td></tr>`}</tbody></table>`;
+}
+function tablaAnul(){
+  return `<table><thead><tr><th>N° anulado</th><th>N° NC</th><th>Candidatura</th><th class="r">Monto</th></tr></thead><tbody>${
+    S.anulados.map(a=>`<tr><td>${n0(a.num)}</td><td>${n0(a.nc)}</td><td>${esc(a.cand)}</td><td class="r">${fmt(a.monto)}</td></tr>`).join("")||`<tr><td colspan="4" style="color:#999">Sin anulaciones</td></tr>`}</tbody></table>`;
+}
+function kvProv(){
+  return `<div class="kv">${P1.map(id=>`<div><small>${LABELS[id]}</small><span>${esc(S.prov[id]||"—")}</span></div>`).join("")}</div>`;
+}
+function renderResumen(){
+  const iss=issues(), emit=sum(S.docs), anul=sum(S.anulados);
+  const last=S.guardados[S.guardados.length-1];
+  $("draftInfo").textContent = `Borrador iniciado el ${fdt(S.creado)} · ${last?`último guardado: ${fdt(last)} (${S.guardados.length} guardado${S.guardados.length>1?"s":""})`:"aún no guardado"}`;
+  $("resumen").innerHTML =
+    block("1. Identificación del proveedor",1,iss[1],kvProv()) +
+    block("2. Propiedad y vínculos",2,iss[2],tablaSocios()+tablaVinc()) +
+    block("3. Documentos",3,iss[3],
+      `<div class="cols" style="gap:20px"><div><b style="font-size:12px;color:var(--navy)">Emitidos</b>${tablaDocs(false)}</div><div><b style="font-size:12px;color:var(--navy)">Anulados</b>${tablaAnul()}</div></div>
+       <div class="total">Total emitido: ${fmt(emit)} · Total anulado: ${fmt(anul)} · Neto: ${fmt(emit-anul)}</div>`);
+  document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>go(+b.dataset.edit));
+}
+
 /* ===================== GENERAL ===================== */
-function validate(s){return [null,validate1,validate2,validate3,validate4][s]();}
-function renderAll(){ if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderStep4(); }
+function validate(s){return [null,validate1,validate2,validate3,validateResumen,validate4][s]();}
+function renderAll(){ if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
 
 function saveDraft(silent){
+  if(!silent) S.guardados.push(new Date().toISOString());
   try{localStorage.setItem(STORAGE_KEY,JSON.stringify(S)); if(!silent) toast("Borrador guardado");}
   catch(e){ if(!silent) toast("No se pudo guardar el borrador en este navegador"); }
 }
 function loadDraft(){
-  try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); if(d&&d.prov){S=Object.assign(emptyState(),d); if(S.step>4)S.step=1; return true;}}catch(e){}
+  try{const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); if(d&&d.prov){S=Object.assign(emptyState(),d); if(S.step>5)S.step=1; return true;}}catch(e){}
   return false;
 }
+
+/* ===================== CERTIFICADO ===================== */
+function hashCode(str){ // FNV-1a 64 bits aprox. en dos mitades → código de verificación
+  let h1=0x811c9dc5,h2=0x01000193;
+  for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h1=Math.imul(h1^c,16777619)>>>0;h2=Math.imul(h2^c,2246822507)>>>0;}
+  return (h1.toString(16).padStart(8,"0")+h2.toString(16).padStart(8,"0")).toUpperCase().match(/.{4}/g).join("-");
+}
 function submit(){
-  const folio="RPE-"+new Date().getFullYear()+"-"+Math.random().toString(36).slice(2,8).toUpperCase();
-  const payload={folio,fechaEnvio:new Date().toISOString(),proveedor:S.prov,socios:S.socios,
-    tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
+  const ahora=new Date();
+  const folio="RPE-"+ahora.getFullYear()+"-"+String(Date.now()).slice(-6)+Math.random().toString(36).slice(2,4).toUpperCase();
+  const pag=S.docs.filter(d=>pago(d).estado==="Pagado"), pen=S.docs.filter(d=>pago(d).estado!=="Pagado");
+  const payload={folio,fechaEnvio:ahora.toISOString(),inicioBorrador:S.creado,guardadosBorrador:S.guardados,
+    proveedor:S.prov,socios:S.socios,tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
     documentosEmitidos:S.docs.map(d=>({...d,pago:pago(d)})),documentosAnulados:S.anulados,
-    totales:{emitido:sum(S.docs),anulado:sum(S.anulados)},declaraciones:S.decl};
+    totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:sum(pag),pendiente:sum(pen)},
+    declaraciones:["La información entregada es verídica y completa.","Informaré anulaciones, modificaciones y notas de crédito.","Acreditaré el pago cuando la autoridad electoral lo requiera."]};
+  payload.codigoVerificacion=hashCode(JSON.stringify(payload));
   /* Aquí se conectaría el backend: fetch("/api/inscripciones",{method:"POST",body:JSON.stringify(payload)}) */
-  const a=document.createElement("a");
-  a.href=URL.createObjectURL(new Blob([JSON.stringify(payload,null,2)],{type:"application/json"}));
-  a.download=folio+".json"; a.click();
+  ultimoEnvio=payload;
+  renderCert(payload);
   try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
-  $("folio").textContent=folio; go(5);
+  go(6);
+}
+function renderCert(p){
+  const t=p.totales;
+  $("cert").innerHTML=`
+    <div class="cert-top">
+      <div><h2>Certificado de inscripción</h2><p>Registro de Proveedores Electorales</p></div>
+      <div class="cert-folio">Folio<b>${p.folio}</b>Emitido: ${fdt(p.fechaEnvio)}</div>
+    </div>
+    <p class="lead">Se certifica que <b>${esc(p.proveedor.razon)}</b>, RUT <b>${esc(p.proveedor.rut)}</b>, representada legalmente por
+      <b>${esc(p.proveedor.repNombre)}</b> (RUT ${esc(p.proveedor.repRut)}), completó su inscripción en el Registro de Proveedores Electorales
+      en la categoría <b>${esc(p.proveedor.categoria)}</b>, con el detalle que se indica a continuación.</p>
+
+    <h3>1. Identificación del proveedor</h3>${kvProv()}
+    <h3>2. Socios y beneficiarios finales</h3>${tablaSocios()}
+    <h3>Vínculos con candidaturas, partidos o administradores</h3>${tablaVinc()}
+    <h3>3. Documentos emitidos y estado de pago</h3>${tablaDocs(true)}
+    <h3>Documentos anulados</h3>${tablaAnul()}
+    <h3>Totales</h3>
+    <div class="totgrid">
+      <div>Emitido<b>${fmt(t.emitido)}</b></div><div>Anulado<b>${fmt(t.anulado)}</b></div><div>Neto<b>${fmt(t.neto)}</b></div>
+      <div>Pagado<b>${fmt(t.pagado)}</b></div><div>Pendiente<b>${fmt(t.pendiente)}</b></div>
+    </div>
+    <h3>4. Declaraciones aceptadas</h3>
+    <ul class="timeline">${p.declaraciones.map(d=>`<li>✓ ${d}</li>`).join("")}</ul>
+    <h3>Trazabilidad del proceso</h3>
+    <ul class="timeline">
+      <li>Inicio del borrador: ${fdt(p.inicioBorrador)}</li>
+      ${p.guardadosBorrador.map((g,i)=>`<li>Borrador guardado (${i+1}): ${fdt(g)}</li>`).join("")}
+      <li>Envío de la inscripción: ${fdt(p.fechaEnvio)}</li>
+    </ul>
+    <div class="cert-foot">
+      <div>Código de verificación<br><span class="vcode">${p.codigoVerificacion}</span></div>
+      <div style="text-align:right">Inscripción gratuita · requisito para reembolsos sobre 30 UF<br>Documento generado electrónicamente.</div>
+    </div>`;
 }
 
-$("continuar").onclick=()=>{ if(!validate(S.step)) return toast("Revise los campos marcados"); if(S.step===4) return submit(); saveDraft(true); go(S.step+1); };
+$("continuar").onclick=()=>{
+  if(!validate(S.step)) return toast(S.step===4?"Complete lo pendiente antes de declarar":"Revise los campos marcados");
+  if(S.step===5) return submit();
+  saveDraft(true); go(S.step+1);
+};
 $("volver").onclick=()=>go(S.step-1);
-$("guardar").onclick=()=>saveDraft(false);
-$("nueva").onclick=()=>{S=emptyState();loadStep1();go(1);};
+$("guardar").onclick=()=>{ saveDraft(false); if(S.step!==4) go(4); else renderResumen(); };
+$("nueva").onclick=()=>{S=emptyState();ultimoEnvio=null;loadStep1();go(1);};
+$("imprimir").onclick=()=>window.print();
+$("descJson").onclick=()=>{ if(!ultimoEnvio) return;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(ultimoEnvio,null,2)],{type:"application/json"}));
+  a.download=ultimoEnvio.folio+".json"; a.click(); };
 $("salir").onclick=e=>{e.preventDefault();saveDraft(true);toast("Sesión cerrada · borrador guardado");};
 $("fileComp").onchange=()=>{const f=$("fileComp").files[0]; if(f&&pendingUpload!=null){ if(f.size>5*1024*1024) return toast("Archivo supera 5 MB"); pago(S.docs[pendingUpload]).archivo=f.name; renderStep4(); toast("Comprobante adjuntado"); }};
 
