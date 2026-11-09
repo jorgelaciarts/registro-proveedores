@@ -23,7 +23,7 @@
 
   .stepper{display:flex;justify-content:space-between;position:relative;padding:16px 60px 6px}
   .stepper::before{content:"";position:absolute;top:28px;left:130px;right:130px;height:2px;background:#d9dde5;z-index:0}
-  .step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:200px;cursor:pointer;background:none;border:0;font:inherit}
+  .step{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:170px;cursor:pointer;background:none;border:0;font:inherit}
   .dot{width:26px;height:26px;border-radius:50%;border:1.5px solid #9aa2b1;background:#fff;color:#555;display:flex;align-items:center;justify-content:center;font-size:12px}
   .step small{margin-top:8px;font-size:12px;color:var(--muted)}
   .step.active .dot{background:var(--red);border-color:var(--red);color:#fff}
@@ -87,7 +87,49 @@
   .hidden{display:none}
   .done-box{text-align:center;padding:60px 20px}
   .done-box h2{font-size:20px}
+  /* Resumen */
+  .sum-block{border:1px solid #e1e5ec;border-radius:6px;padding:12px 16px;margin-bottom:14px}
+  .sum-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .sum-head h3{margin:0;color:var(--navy);font-size:14px}
+  .sum-head .tools{display:flex;gap:10px;align-items:center}
+  .badge{font-size:11px;font-weight:600;padding:2px 10px;border-radius:10px}
+  .badge.ok{background:var(--ok-bg);color:var(--ok)}
+  .badge.bad{background:#fde2e2;color:var(--red)}
+  .edit{background:none;border:0;color:var(--red);font-weight:600;cursor:pointer;font-size:12px}
+  .kv{display:grid;grid-template-columns:repeat(4,1fr);gap:8px 14px;font-size:13px}
+  .kv div small{display:block;color:var(--muted);font-size:11px}
+  .kv div span{font-weight:500}
+  .issues{color:var(--red);font-size:12px;margin:6px 0 0;padding-left:18px}
+  .draftinfo{font-size:12px;color:var(--muted);margin:-4px 0 12px}
+
+  /* Certificado */
+  .cert{max-width:860px;margin:10px auto;border:2px solid var(--navy);padding:28px 34px;position:relative;background:#fff}
+  .cert::before{content:"";position:absolute;inset:6px;border:1px solid #c7cde3;pointer-events:none}
+  .cert-top{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--red);padding-bottom:12px;margin-bottom:14px}
+  .cert-top h2{font-size:20px;margin:0 0 4px}
+  .cert-top p{margin:0;font-size:12px;color:var(--muted)}
+  .cert-folio{text-align:right;font-size:12px}
+  .cert-folio b{display:block;font-size:16px;color:var(--red)}
+  .cert h3{color:var(--navy);font-size:13px;text-transform:uppercase;letter-spacing:.04em;margin:16px 0 6px;border-bottom:1px solid #e1e5ec;padding-bottom:3px}
+  .cert p.lead{font-size:13px;line-height:1.5}
+  .cert table{font-size:11.5px}
+  .cert td,.cert th{padding:5px 8px}
+  .totgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;font-size:12px}
+  .totgrid div{background:#f2f4fb;padding:6px 10px;border-radius:4px}
+  .totgrid b{display:block;color:var(--navy);font-size:14px}
+  .timeline{font-size:12px;margin:0;padding-left:18px}
+  .cert-foot{display:flex;justify-content:space-between;align-items:flex-end;margin-top:22px;font-size:11px;color:var(--muted)}
+  .vcode{font-family:Consolas,monospace;font-size:13px;color:var(--navy);font-weight:700;letter-spacing:.06em}
+  .cert-actions{display:flex;justify-content:center;gap:14px;margin:18px 0}
+  @media print{
+    body{background:#fff}
+    header,.stepper,footer.actions,.toast,.noprint{display:none!important}
+    main{padding:0}
+    .cert{border-width:1.5px;margin:0;max-width:none}
+    @page{margin:14mm}
+  }
   @media(max-width:860px){
+    .kv,.totgrid{grid-template-columns:1fr 1fr}
     .grid4,.cards{grid-template-columns:1fr 1fr}
     .cols{grid-template-columns:1fr}
     .cols.split > div + div{border-left:0;padding-left:0}
@@ -215,9 +257,16 @@
       <div class="err" id="errDocs"></div>
     </section>
 
-    <!-- PASO 4 -->
+    <!-- PASO 4: RESUMEN PREVIO -->
     <section data-step="4" class="hidden">
-      <h2>4. Resumen de la inscripción</h2>
+      <h2>4. Resumen previo a la declaración</h2>
+      <div class="draftinfo" id="draftInfo"></div>
+      <div id="resumen"></div>
+    </section>
+
+    <!-- PASO 5 -->
+    <section data-step="5" class="hidden">
+      <h2>5. Declaración y envío</h2>
       <div class="cards">
         <div class="card"><small>Proveedor</small><b id="cProv"></b></div>
         <div class="card"><small>Socios declarados</small><b id="cSoc"></b></div>
@@ -244,13 +293,14 @@
       </div>
     </section>
 
-    <section data-step="5" class="hidden">
-      <div class="done-box">
-        <h2>✓ Inscripción enviada</h2>
-        <p>Folio: <b id="folio"></b></p>
-        <p style="color:var(--muted);font-size:13px">Se descargó un comprobante en formato JSON con los datos ingresados.</p>
+    <!-- CERTIFICADO -->
+    <section data-step="6" class="hidden">
+      <div class="cert-actions noprint">
+        <button class="btn btn-red" id="imprimir">Imprimir / Guardar PDF</button>
+        <button class="btn btn-out" id="descJson">Descargar datos (JSON)</button>
         <button class="btn btn-out" id="nueva">Nueva inscripción</button>
       </div>
+      <div class="cert" id="cert"></div>
     </section>
   </main>
 
@@ -286,15 +336,17 @@ const REGIONES = {
   "Región de Aysén":["Coyhaique","Puerto Aysén","Chile Chico","Cochrane"],
   "Región de Magallanes":["Punta Arenas","Puerto Natales","Porvenir","Puerto Williams"]
 };
-const STEPS = ["Identificación","Propiedad y vínculos","Documentos","Declaración y envío"];
+const STEPS = ["Identificación","Propiedad y vínculos","Documentos","Resumen","Declaración y envío"];
 const STORAGE_KEY = "registroProveedoresBorrador";
 
 /* ===================== ESTADO ===================== */
 const emptyState = () => ({
   step:1,
   prov:{rut:"",razon:"",fantasia:"",categoria:"",repNombre:"",repRut:"",email:"",telefono:"",region:"",comuna:"",direccion:""},
-  socios:[], vinculos:null, listaVinc:[], docs:[], anulados:[], pagos:{}, decl:[false,false,false]
+  socios:[], vinculos:null, listaVinc:[], docs:[], anulados:[], pagos:{}, decl:[false,false,false],
+  creado:new Date().toISOString(), guardados:[]
 });
+let ultimoEnvio=null;
 let S = emptyState();
 
 /* ===================== UTILIDADES ===================== */
@@ -325,8 +377,9 @@ function renderStepper(){
     return `<button class="step ${cls}" data-go="${k}"><span class="dot">${S.step>k?"✓":k}</span><small>${n}</small></button>`;
   }).join("");
   $("stepper").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
-    const k=+b.dataset.go; if(S.step>4) return;
-    if(k<S.step) go(k); else { for(let s=S.step;s<k;s++){ if(!validate(s)) return go(s);} go(k); }
+    const k=+b.dataset.go; if(S.step>5) return;
+    if(k<=4) return go(k);           // pasos 1-4 siempre navegables (el resumen muestra lo pendiente)
+    for(let s=1;s<5;s++){ if(!validate(s)) return go(s===4?4:s); } go(k);
   });
 }
 
