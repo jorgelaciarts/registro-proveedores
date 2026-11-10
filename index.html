@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Registro de Proveedores Electorales · Prototipo</title>
+<title>Portal de Proveedores Electorales · Prototipo</title>
 <style>
   :root{
     --red:#c00000; --red-dark:#a00000; --navy:#1f2a6b; --navy-soft:#eef1fa;
@@ -195,6 +195,18 @@
   .pg-list td{font-size:12px}
   .pg-list a{color:var(--navy);font-weight:600;cursor:pointer}
   @media(max-width:860px){ .pg-filters{grid-template-columns:1fr} .pg-form{grid-template-columns:1fr 1fr} .pg-sum{grid-template-columns:1fr} }
+  /* Página principal */
+  .home-hero{text-align:center;padding:34px 20px 8px}
+  .home-hero h2{font-size:28px;margin:0 0 8px}
+  .home-hero p{max-width:640px;margin:0 auto;color:var(--muted);font-size:14.5px;line-height:1.55}
+  .home-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin:30px 0 20px}
+  .hcard{border:1px solid #e1e5ec;border-radius:12px;padding:24px 22px 22px;display:flex;flex-direction:column;cursor:pointer;transition:.15s;background:#fff}
+  .hcard:hover{border-color:var(--navy);box-shadow:0 6px 20px rgba(31,42,107,.10);transform:translateY(-2px)}
+  .hcard-ico{width:52px;height:52px;border-radius:12px;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;font-size:24px;margin-bottom:14px}
+  .hcard h3{margin:0 0 8px;color:var(--navy);font-size:17px}
+  .hcard p{margin:0 0 18px;color:var(--muted);font-size:13.5px;line-height:1.55;flex:1}
+  .hcard .btn{align-self:flex-start;min-width:0;padding:0 18px}
+  @media(max-width:860px){ .home-cards{grid-template-columns:1fr} }
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -317,12 +329,13 @@
   <header>
     <div class="brand" id="brand" style="cursor:pointer">
       <div class="logo">LOGO</div>
-      <h1>Registro de Proveedores Electorales <span class="tag">Prototipo</span></h1>
+      <h1>Portal de Proveedores Electorales <span class="tag">Prototipo</span></h1>
     </div>
-    <nav><a href="#" id="navInicio">Proveedores</a><span>·</span><a href="#" id="navCuenta">Iniciar sesión</a><span>·</span><a href="#">Ayuda</a><span id="salirSep">·</span><a href="#" id="salir">Salir</a></nav>
+    <nav><a href="#" id="navInicio">Inicio</a><span>·</span><a href="#" id="navCuenta">Iniciar sesión</a><span>·</span><a href="#">Ayuda</a><span id="salirSep">·</span><a href="#" id="salir">Salir</a></nav>
   </header>
 
   <nav class="tabs" id="tabs">
+    <button class="tab" data-tab="inicio">Inicio</button>
     <button class="tab" data-tab="registrados">Proveedores registrados <span class="cnt" id="tabCnt">0</span></button>
     <button class="tab" data-tab="registrar">Ingreso proveedor</button>
     <button class="tab" data-tab="pagos">Seguimiento de pagos</button>
@@ -361,6 +374,34 @@
             <button class="btn btn-red" type="submit">Crear cuenta e ingresar</button>
             <div class="alt">¿Ya tiene cuenta? <a id="goIn">Inicie sesión</a></div>
           </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- PÁGINA PRINCIPAL -->
+    <section data-step="-1" class="hidden">
+      <div class="home-hero">
+        <h2>Portal de Proveedores Electorales</h2>
+        <p>Consulte los proveedores inscritos, registre la información de su empresa y revise los pagos que las candidaturas han realizado a sus proveedores.</p>
+      </div>
+      <div class="home-cards">
+        <div class="hcard" data-go-tab="registrados">
+          <div class="hcard-ico">🔎</div>
+          <h3>Proveedores registrados</h3>
+          <p>Consulte el listado de proveedores inscritos. Busque por razón social, RUT, representante legal, socio o candidatura y vea la ficha completa de cada proveedor.</p>
+          <button class="btn btn-red">Consultar proveedores →</button>
+        </div>
+        <div class="hcard" data-go-tab="registrar">
+          <div class="hcard-ico">📝</div>
+          <h3>Ingreso proveedor</h3>
+          <p>Si su empresa presta servicios a candidaturas, inicie sesión o cree una cuenta para registrar su información, documentos emitidos y obtener su certificado de inscripción.</p>
+          <button class="btn btn-red">Ingresar como proveedor →</button>
+        </div>
+        <div class="hcard" data-go-tab="pagos">
+          <div class="hcard-ico">💳</div>
+          <h3>Seguimiento de pagos</h3>
+          <p>Revise de forma pública cuánto ha pagado cada candidatura a sus proveedores, qué documentos están pendientes y en qué fecha se realizaron los pagos.</p>
+          <button class="btn btn-red">Ver seguimiento de pagos →</button>
         </div>
       </div>
     </section>
@@ -694,13 +735,13 @@ function go(k){
   S.step=k;
   document.querySelectorAll("section[data-step]").forEach(s=>s.classList.toggle("hidden",+s.dataset.step!==k));
   const wiz = k>=1 && k<=5;
-  const tab = k===0?"registrados":(k===-3?"pagos":"registrar");
+  const tab = k===-1?"inicio":(k===0?"registrados":(k===-3?"pagos":"registrar"));
   updateHeader();
   document.querySelectorAll("#tabs .tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tab));
   $("tabCnt").textContent = getRegs().length;
   $("stepper").style.display = wiz?"":"none";
   $("actions").style.display = wiz?"":"none";
-  $("volver").textContent = k===1?"← Proveedores":"← Volver";
+  $("volver").textContent = k===1?"← Inicio":"← Volver";
   $("nota").classList.toggle("hidden",k!==5);
   $("btnPreview").classList.toggle("hidden",!(k===4||k===5));
   $("continuar").textContent = k===5?"Enviar inscripción":(k===4?"Ir a declaración →":"Continuar →");
@@ -1087,7 +1128,7 @@ $("continuar").onclick=()=>{
   if(S.step===5) return submit();
   saveDraft(true); go(S.step+1);
 };
-$("volver").onclick=()=>{ commitPending(); if(S.step===1){ autoSave(); go(0); } else go(S.step-1); };
+$("volver").onclick=()=>{ commitPending(); if(S.step===1){ autoSave(); go(-1); } else go(S.step-1); };
 $("guardar").onclick=()=>{ if(!commitPending()) return toast("Hay un registro escrito sin agregar con errores"); saveDraft(false); if(S.step!==4) go(4); else renderResumen(); };
 function resetForm(){S=emptyState();ultimoEnvio=null;["sRut","sNombre","sPct","vCand","dNum","dMonto","aNum","aNC","aMonto"].forEach(id=>$(id).value="");document.querySelectorAll(".decl").forEach(c=>c.checked=false);document.querySelectorAll("input[name=vinc]").forEach(r=>r.checked=false);document.querySelectorAll(".err").forEach(e=>e.textContent="");document.querySelectorAll(".invalid").forEach(e=>e.classList.remove("invalid"));loadStep1();setAutoLabel("");}
 $("nueva").onclick=()=>{resetForm();go(1);};
@@ -1206,7 +1247,7 @@ function initHome(){
   $("fichaPrint").onclick=()=>window.print();
   $("fichaJson").onclick=()=>{ const p=getRegs()[fichaIdx]; if(p) downloadJSON(p,p.folio+".json"); };
   $("fichaClose").onclick=()=>{ hideFicha(); renderHome(); };
-  const toHome=e=>{ e.preventDefault(); leaveWizard(); go(0); };
+  const toHome=e=>{ e.preventDefault(); leaveWizard(); go(-1); };
   $("navInicio").onclick=toHome; $("brand").onclick=toHome;
 }
 
@@ -1266,7 +1307,7 @@ function logout(){
   if(!SESSION){ go(0); return; }
   leaveWizard();
   try{ sessionStorage.removeItem(SES_KEY); localStorage.removeItem(SES_KEY); }catch(e){}
-  SESSION=null; useAccountDraft(); go(0); toast("Sesión cerrada · su borrador quedó guardado");
+  SESSION=null; useAccountDraft(); go(-1); toast("Sesión cerrada · su borrador quedó guardado");
 }
 function updateHeader(){
   $("navCuenta").innerHTML = SESSION ? `<span class="user-chip">👤 ${esc(SESSION.razon)}</span>` : "Iniciar sesión";
@@ -1344,8 +1385,10 @@ function initPortal(){
   document.querySelectorAll("#tabs .tab").forEach(t=>t.onclick=()=>{
     if(t.dataset.tab==="registrar"){ if(S.step>=1&&S.step<=5) return; return goRegistrar(); }
     if(t.dataset.tab==="pagos"){ leaveWizard(); return go(-3); }
+    if(t.dataset.tab==="inicio"){ leaveWizard(); return go(-1); }
     leaveWizard(); go(0);
   });
+  document.querySelectorAll("[data-go-tab]").forEach(c=>c.onclick=()=>document.querySelector(`#tabs .tab[data-tab="${c.dataset.goTab}"]`).click());
 }
 
 /* ===================== SEGUIMIENTO DE PAGOS (solo lectura) ===================== */
@@ -1441,7 +1484,7 @@ try{ if(localStorage.getItem("registroProveedoresSeed")!=="xlsx-v2") loadDemo(tr
 SESSION=readSession();
 STORAGE_KEY = SESSION ? DRAFT_BASE+":"+cleanRut(SESSION.rut) : DRAFT_BASE;
 const recuperado = SESSION ? loadDraft() : false;
-loadStep1(); initHome(); initPortal(); initAuth(); initPagos(); go(0); restorePending();
+loadStep1(); initHome(); initPortal(); initAuth(); initPagos(); go(-1); restorePending();
 if(recuperado) setAutoLabel("✓ Borrador recuperado"+(S.actualizado?" · último cambio "+fdt(S.actualizado):""),"ok");
 </script>
 </body>
