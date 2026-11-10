@@ -373,7 +373,8 @@
             <button class="link" data-toggle="fVinc">+ Agregar vínculo</button>
             <div class="inlineform show" id="fVinc">
               <div><label>Persona</label><select id="vPersona"></select></div>
-              <div><label>Tipo</label><select id="vTipo"><option>Parentesco</option><option>Militancia</option><option>Relación laboral</option><option>Administrador electoral</option><option>Otro</option></select></div>
+              <div style="flex:1.3"><label>Tipo de vínculo</label><select id="vTipo"><optgroup label="Familiar por consanguinidad"><option>Padre / Madre</option><option>Hijo / Hija</option><option>Hermano / Hermana</option><option>Medio hermano / Media hermana</option><option>Abuelo / Abuela</option><option>Nieto / Nieta</option><option>Bisabuelo / Bisabuela</option><option>Bisnieto / Bisnieta</option><option>Tío / Tía</option><option>Sobrino / Sobrina</option><option>Primo / Prima</option><option>Tío abuelo / Tía abuela</option><option>Sobrino nieto / Sobrina nieta</option></optgroup><optgroup label="Familiar por matrimonio o convivencia"><option>Cónyuge</option><option>Conviviente civil (AUC)</option><option>Pareja / Conviviente de hecho</option><option>Ex cónyuge / Ex conviviente</option><option>Suegro / Suegra</option><option>Yerno / Nuera</option><option>Cuñado / Cuñada</option><option>Concuñado / Concuñada</option><option>Consuegro / Consuegra</option><option>Padrastro / Madrastra</option><option>Hijastro / Hijastra</option><option>Hermanastro / Hermanastra</option></optgroup><optgroup label="Otros vínculos familiares"><option>Padrino / Madrina</option><option>Ahijado / Ahijada</option><option>Compadre / Comadre</option><option>Tutor / Curador</option><option>Pupilo</option><option>Hijo adoptivo / Padre adoptivo</option><option>Otro familiar</option></optgroup><optgroup label="Personal"><option>Amistad</option><option>Amistad íntima</option><option>Pololeo / Relación sentimental</option><option>Ex pareja</option><option>Vecino / Vecina</option><option>Compañero de estudios</option></optgroup><optgroup label="Laboral o comercial"><option>Empleador</option><option>Trabajador dependiente</option><option>Prestador de servicios / Honorarios</option><option>Socio en otra empresa</option><option>Director o gerente en empresa común</option><option>Asesor / Consultor</option><option>Acreedor / Deudor</option><option>Proveedor habitual</option><option>Mandatario / Apoderado</option></optgroup><optgroup label="Político o electoral"><option>Candidato / Candidata</option><option>Militante del mismo partido</option><option>Directiva de partido</option><option>Funcionario de partido</option><option>Administrador electoral</option><option>Administrador general electoral</option><option>Jefe / Jefa de campaña</option><option>Integrante del comando de campaña</option><option>Voluntario de campaña</option><option>Aportante / Donante de campaña</option><option>Asesor político</option><option>Funcionario público de confianza</option></optgroup><optgroup label="Otro"><option>Otro (especificar)</option></optgroup></select></div>
+              <div id="vOtroBox" class="hidden"><label>Especifique</label><input id="vOtro" placeholder="Describa el vínculo"></div>
               <div><label>Candidatura / partido</label><input id="vCand" placeholder="Candidatura B · Concejalía"></div>
               <button class="btn btn-red btn-sm" id="addVinc">Agregar</button>
             </div>
@@ -639,12 +640,16 @@ function initStep2(){
     renderStep2();
   };
   document.querySelectorAll("input[name=vinc]").forEach(r=>r.onchange=()=>{S.vinculos=r.value;$("errVinc").textContent="";renderStep2();});
+  $("vTipo").addEventListener("change",()=>$("vOtroBox").classList.toggle("hidden",$("vTipo").value!=="Otro (especificar)"));
   $("addVinc").onclick=()=>{
     const persona=$("vPersona").value, cand=$("vCand").value.trim();
+    let tipo=$("vTipo").value;
     if(!persona) return $("errVinc").textContent="Primero agregue socios";
+    if(tipo==="Otro (especificar)"){ const o=$("vOtro").value.trim(); if(!o) return $("errVinc").textContent="Especifique el tipo de vínculo"; tipo="Otro: "+o; }
+    if(S.listaVinc.some(v=>v.persona===persona&&v.tipo===tipo&&v.cand.toLowerCase()===cand.toLowerCase())) return $("errVinc").textContent="Ese vínculo ya fue agregado";
     if(!cand) return $("errVinc").textContent="Indique la candidatura, partido o administrador";
     $("errVinc").textContent="";
-    S.listaVinc.push({persona,tipo:$("vTipo").value,cand}); $("vCand").value="";
+    S.listaVinc.push({persona,tipo,cand}); $("vCand").value=""; $("vOtro").value="";
     renderStep2();
   };
 }
@@ -797,7 +802,7 @@ function commitPending(){
   const tryAdd=(ids,btn,errId)=>{ if(!filled(ids)) return true; $(errId).textContent=""; $(btn).click(); return !$(errId).textContent; };
   let ok=true;
   ok = tryAdd(["sRut","sNombre","sPct"],"addSocio","errSocios") && ok;
-  if(S.vinculos==="si") ok = tryAdd(["vCand"],"addVinc","errVinc") && ok;
+  if(S.vinculos==="si") ok = tryAdd(["vCand","vOtro"],"addVinc","errVinc") && ok;
   ok = tryAdd(["dNum","dMonto"],"addDoc","errDocs") && ok;
   ok = tryAdd(["aNum","aNC","aMonto"],"addAnul","errDocs") && ok;
   return ok;
@@ -1169,7 +1174,7 @@ function initPortal(){
 
 /* ===================== AUTOGUARDADO ===================== */
 /* Campos de los formularios "Agregar" que se conservan aunque aún no se hayan agregado */
-const PEND_IDS=["sRut","sNombre","sPct","sBen","vPersona","vTipo","vCand","dTipo","dNum","dCand","dMonto","aNum","aNC","aMonto","aCand"];
+const PEND_IDS=["sRut","sNombre","sPct","sBen","vPersona","vTipo","vOtro","vCand","dTipo","dNum","dCand","dMonto","aNum","aNC","aMonto","aCand"];
 let autoTimer=null, ultimoAuto=null;
 function setAutoLabel(txt,cls){const el=$("autosave"); el.textContent=txt; el.className="autosave "+(cls||"");}
 function autoSave(){
@@ -1188,6 +1193,7 @@ function scheduleAuto(){
   clearTimeout(autoTimer); autoTimer=setTimeout(autoSave,500);
 }
 function restorePending(){
+  setTimeout(()=>$("vOtroBox").classList.toggle("hidden",$("vTipo").value!=="Otro (especificar)"));
   if(!S.pend) return;
   PEND_IDS.forEach(id=>{ const el=$(id); if(el && S.pend[id]!=null && S.pend[id]!=="" && [...(el.options||[{value:S.pend[id]}])].some(o=>o.value===S.pend[id])) el.value=S.pend[id]; });
 }
