@@ -119,6 +119,35 @@
   .st.par{background:#ffe2c6;color:#8a4b00}
   .st.sin{background:#fde2e2;color:var(--red)}
   .help{font-size:12px;color:var(--muted);margin:-6px 0 10px}
+  .seclabel{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--navy);margin:4px 0 8px}
+  .seclabel span{font-weight:400;text-transform:none;letter-spacing:0;color:var(--muted);margin-left:6px}
+  .sumline{display:flex;flex-wrap:wrap;gap:4px 0;font-size:13px;color:var(--muted);margin-top:4px}
+  .sumline span{white-space:nowrap}
+  .sumline span + span::before{content:"·";margin:0 10px;color:#b8bfcc}
+  .sumline b{color:var(--navy);font-weight:700}
+  /* Indicadores del registro */
+  .kpis{display:grid;grid-template-columns:repeat(4,1fr);border:1px solid #e1e5ec;border-radius:10px;background:#fff;margin-bottom:22px;overflow:hidden}
+  .kpi{display:flex;gap:12px;align-items:flex-start;padding:16px 18px;border-left:1px solid #e1e5ec;min-width:0}
+  .kpi:first-child{border-left:0}
+  .kpi-ico{flex:0 0 38px;height:38px;border-radius:9px;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;font-size:18px}
+  .kpi.warn .kpi-ico{background:#fff4d6}
+  .kpi-body{min-width:0}
+  .kpi-label{font-size:12px;color:var(--muted);font-weight:600}
+  .kpi-val{font-size:22px;font-weight:700;color:var(--navy);line-height:1.2;margin:3px 0 4px;white-space:nowrap}
+  .kpi.warn .kpi-val{color:#9a6a00}
+  .kpi-sub{font-size:11.5px;color:var(--muted);line-height:1.35}
+  .kpi-bar{display:block;height:5px;background:#eef0f4;border-radius:3px;overflow:hidden;margin:2px 0 5px;width:140px;max-width:100%}
+  .kpi-bar i{display:block;height:100%;background:#d9a400;border-radius:3px}
+  @media(max-width:1000px){
+    .kpis{grid-template-columns:repeat(2,1fr)}
+    .kpi:nth-child(3){border-left:0}
+    .kpi:nth-child(n+3){border-top:1px solid #e1e5ec}
+  }
+  @media(max-width:560px){
+    .kpis{grid-template-columns:1fr}
+    .kpi{border-left:0}
+    .kpi + .kpi{border-top:1px solid #e1e5ec}
+  }
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -149,7 +178,7 @@
   .reg-icon{width:64px;height:64px;border-radius:50%;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px}
   #portalDraft{font-size:14px;line-height:1.55;margin:0 0 18px;max-width:380px;color:var(--text)}
   /* Inicio */
-  .home-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+  .home-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 20px}
   .home-head h2{font-size:18px;margin:8px 0 2px}
   .home-head .right{gap:10px}
   .banner{background:#fff6e0;border:1px solid #f0d58a;color:#6b4e00;border-radius:6px;padding:10px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
@@ -291,17 +320,12 @@
       <div class="noprint">
         <div class="home-head">
           <div>
-            <h2>Proveedores registrados</h2>
-            <div class="draftinfo" style="margin:0">Busque por razón social, RUT, representante legal, socio o folio.</div>
-          </div>
-          <div class="right">
-            <button class="btn btn-out btn-sm" id="btnImport">Importar</button>
-            <button class="btn btn-out btn-sm" id="btnExport">Exportar registro</button>
+            <h2>Consulta de proveedores registrados</h2>
           </div>
         </div>
-        <div class="cards" id="homeStats"></div>
+        <div class="seclabel">Buscar proveedor</div>
         <div class="searchbar">
-          <input id="q" type="search" placeholder="🔍  Buscar por nombre o RUT…" autocomplete="off">
+          <input id="q" type="search" placeholder="🔍  Razón social, RUT, representante, socio, candidatura o folio…" autocomplete="off">
           <select id="fCat"></select>
           <select id="fReg"></select>
         </div>
@@ -310,7 +334,6 @@
           <thead><tr><th>Estado</th><th>Folio</th><th>RUT</th><th>Razón social</th><th>Categoría</th><th>Comuna</th><th class="r">Emitido</th><th class="r">Pendiente</th><th>Fecha</th></tr></thead>
           <tbody id="tHome"></tbody>
         </table>
-        <input type="file" id="fileImport" class="hidden" accept=".json,application/json">
       </div>
       <div id="ficha" class="hidden">
         <div class="ficha-bar noprint">
@@ -972,15 +995,6 @@ function fillFilters(){
 }
 function renderHome(){
   const regs=getRegs(), q=$("q").value, cat=$("fCat").value, reg=$("fReg").value;
-  // indicadores
-  const ruts=new Set(regs.map(r=>cleanRut(r.proveedor.rut)));
-  const tot=k=>regs.reduce((a,r)=>a+((r.totales||{})[k]||0),0);
-  const conV=regs.filter(r=>r.tieneVinculos).length;
-  $("homeStats").innerHTML=`
-    <div class="card"><small>Proveedores registrados</small><b>${ruts.size}</b></div>
-    <div class="card"><small>Inscripciones enviadas</small><b>${regs.length} · ${conV} con vínculos</b></div>
-    <div class="card"><small>Monto emitido (neto)</small><b>${fmt(tot("neto"))}</b></div>
-    <div class="card"><small>Pendiente de pago</small><b>${fmt(tot("pendiente"))}</b></div>`;
   // resultados
   const list=regs.map((r,i)=>({r,i}))
     .filter(({r})=>matches(r,q)&&(!cat||r.proveedor.categoria===cat)&&(!reg||r.proveedor.region===reg))
@@ -1041,20 +1055,6 @@ function loadDemo(silent){
 function initHome(){
   fillFilters();
   ["q","fCat","fReg"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",()=>{ if(S.step===0) renderHome(); }));
-  $("btnExport").onclick=()=>{ const r=getRegs(); if(!r.length) return toast("No hay inscripciones para exportar"); downloadJSON(r,"registro-proveedores-"+new Date().toISOString().slice(0,10)+".json"); };
-  $("btnImport").onclick=()=>{ $("fileImport").value=""; $("fileImport").click(); };
-  $("fileImport").onchange=async()=>{
-    const f=$("fileImport").files[0]; if(!f) return;
-    try{
-      let data=JSON.parse(await f.text()); if(!Array.isArray(data)) data=[data];
-      const ok=data.filter(p=>p&&p.folio&&p.proveedor&&p.totales);
-      const regs=getRegs(), folios=new Set(regs.map(r=>r.folio));
-      const nuevos=ok.filter(p=>!folios.has(p.folio));
-      setRegs(regs.concat(nuevos));
-      toast(`${nuevos.length} inscripción(es) importada(s)${ok.length-nuevos.length?` · ${ok.length-nuevos.length} ya existían`:""}`);
-      renderHome();
-    }catch(e){ toast("El archivo no es un JSON válido"); }
-  };
   $("fichaPrint").onclick=()=>window.print();
   $("fichaJson").onclick=()=>{ const p=getRegs()[fichaIdx]; if(p) downloadJSON(p,p.folio+".json"); };
   $("fichaClose").onclick=()=>{ hideFicha(); renderHome(); };
