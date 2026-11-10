@@ -166,6 +166,35 @@
   .unico-info{font-size:12.5px;margin:-4px 0 10px;color:var(--ok)}
   .unico-info.warn{color:var(--red)}
   .unico-info a{color:var(--red);font-weight:600;cursor:pointer}
+  /* Seguimiento de pagos */
+  .pg-cand td,.pg-cand th{white-space:nowrap}
+  .pg-cand td:first-child{white-space:normal}
+  .pg-cand tr.clk.on td{background:#eef1fa;font-weight:600}
+  .pg-more{text-align:center}
+  .pgbar{display:flex;align-items:center;gap:8px;font-size:11.5px;color:var(--muted)}
+  .pgbar span{flex:1;height:7px;background:#eef0f4;border-radius:4px;overflow:hidden;display:block}
+  .pgbar i{display:block;height:100%;background:var(--ok);border-radius:4px}
+  .pg-filters{display:grid;grid-template-columns:2fr 1.4fr 1fr;gap:10px}
+  .pg-filters input,.pg-filters select{height:38px}
+  .pg-docs td{vertical-align:middle}
+  .pg-docs .btn{white-space:nowrap}
+  .pg-docs td:nth-child(1),.pg-docs td:nth-child(2),.pg-docs td:nth-child(5),.pg-docs td:nth-child(6),.pg-docs td:nth-child(7){white-space:nowrap}
+  .pg-docs small{color:var(--muted)}
+  .resp-ok{color:var(--ok);font-weight:600;font-size:12px}
+  .resp-no{color:var(--red);font-weight:600;font-size:12px}
+  .age{display:block;font-size:11px;color:var(--muted);margin-top:2px}
+  .age.late{color:var(--red);font-weight:600}
+  .pg-card{max-width:720px;margin:40px auto;background:#fff;border-radius:10px;padding:18px 22px 20px;box-shadow:0 10px 40px rgba(0,0,0,.25)}
+  .pg-card-head{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--red);padding-bottom:10px;margin-bottom:12px;color:var(--navy)}
+  .pg-card-head b{font-size:16px}
+  .pg-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+  .pg-sum div{background:#f2f4fb;border-radius:6px;padding:8px 12px;font-size:12px;color:var(--muted)}
+  .pg-sum b{display:block;font-size:16px;color:var(--navy)}
+  .pg-form{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+  .pg-form .span2{grid-column:span 2}
+  .pg-list td{font-size:12px}
+  .pg-list a{color:var(--navy);font-weight:600;cursor:pointer}
+  @media(max-width:860px){ .pg-filters{grid-template-columns:1fr} .pg-form{grid-template-columns:1fr 1fr} .pg-sum{grid-template-columns:1fr} }
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -296,6 +325,7 @@
   <nav class="tabs" id="tabs">
     <button class="tab" data-tab="registrados">Proveedores registrados <span class="cnt" id="tabCnt">0</span></button>
     <button class="tab" data-tab="registrar">Ingreso proveedor</button>
+    <button class="tab" data-tab="pagos">Seguimiento de pagos</button>
   </nav>
 
   <div class="stepper" id="stepper"></div>
@@ -333,6 +363,42 @@
           </form>
         </div>
       </div>
+    </section>
+
+    <!-- SEGUIMIENTO DE PAGOS -->
+    <section data-step="-3" class="hidden">
+      <div class="home-head">
+        <div>
+          <h2>Seguimiento de pagos a proveedores</h2>
+          <div class="draftinfo" style="margin:0">Control de los pagos realizados por cada candidatura a sus proveedores y de su respaldo.</div>
+        </div>
+      </div>
+
+      <div class="seclabel">Pagos por candidatura</div>
+      <table id="tCandPag" class="pg-cand">
+        <thead><tr><th>Candidatura</th><th class="r">Proveedores</th><th class="r">Documentos</th><th class="r">Facturado</th><th class="r">Pagado</th><th class="r">Pendiente</th><th style="width:150px">Avance de pago</th><th class="r">Sin respaldo</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="pg-more"><button class="link" id="pgMore"></button></div>
+
+      <div class="seclabel" style="margin-top:22px">Detalle de documentos</div>
+      <div class="pg-filters">
+        <input id="pgQ" type="search" placeholder="🔍  Proveedor, RUT o N° de documento…" autocomplete="off">
+        <select id="pgCand"></select>
+        <select id="pgEst">
+          <option value="">Todos los estados</option>
+          <option value="pend">Pendiente de pago</option>
+          <option value="parc">Pago parcial</option>
+          <option value="pag">Pagado</option>
+          <option value="sinresp">Pagado sin respaldo</option>
+          <option value="venc">Pendiente más de 30 días</option>
+        </select>
+      </div>
+      <div class="draftinfo" id="pgCount" style="margin:6px 0 8px"></div>
+      <table class="pg-docs">
+        <thead><tr><th>N° doc.</th><th>Fecha doc.</th><th>Proveedor</th><th>Candidatura</th><th class="r">Monto</th><th class="r">Pagado</th><th class="r">Saldo</th><th>Estado</th><th>Respaldo</th><th></th></tr></thead>
+        <tbody id="tPgDocs"></tbody>
+      </table>
     </section>
 
     <!-- INICIO: BUSCADOR DE PROVEEDORES -->
@@ -541,6 +607,33 @@
     </div>
   </footer>
 </div>
+<div class="preview hidden" id="pgModal">
+  <div class="pg-card">
+    <div class="pg-card-head">
+      <div><b id="pgmTitle">Pagos del documento</b><div class="draftinfo" id="pgmSub" style="margin:2px 0 0"></div></div>
+      <button class="del" id="pgmClose" style="font-size:20px" title="Cerrar">✕</button>
+    </div>
+    <div class="pg-sum" id="pgmSum"></div>
+    <div class="seclabel">Pagos registrados</div>
+    <div id="pgmList"></div>
+    <div class="seclabel" style="margin-top:16px">Registrar pago</div>
+    <div class="formerr" id="pgmErr"></div>
+    <div class="pg-form">
+      <div><label>Fecha de pago</label><input type="date" id="pgmFecha"></div>
+      <div><label>Monto pagado ($)</label><input id="pgmMonto" class="money"></div>
+      <div><label>Medio de pago</label><select id="pgmMedio"><option>Transferencia electrónica</option><option>Cheque</option><option>Vale vista</option><option>Depósito bancario</option><option>Tarjeta de débito/crédito</option><option>Efectivo</option></select></div>
+      <div><label>N° operación / cheque</label><input id="pgmOper" placeholder="Ej: 004512889"></div>
+      <div class="span2"><label>Comprobante de respaldo (PDF o imagen)</label><input type="file" id="pgmFile" accept=".pdf,.jpg,.jpeg,.png" style="height:auto;padding:5px"></div>
+      <div class="span2"><label>Observación (opcional)</label><input id="pgmObs" placeholder="Ej: pago con cargo a reembolso"></div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:12px">
+      <button class="btn btn-out btn-sm" id="pgmCancel">Cerrar</button>
+      <button class="btn btn-red btn-sm" id="pgmSave">Registrar pago</button>
+    </div>
+    <div class="seclabel" style="margin-top:18px">Historial</div>
+    <ul class="timeline" id="pgmHist"></ul>
+  </div>
+</div>
 <div class="preview hidden" id="preview">
   <div class="preview-bar noprint">
     <b>Vista preliminar del certificado</b>
@@ -630,7 +723,7 @@ function go(k){
   S.step=k;
   document.querySelectorAll("section[data-step]").forEach(s=>s.classList.toggle("hidden",+s.dataset.step!==k));
   const wiz = k>=1 && k<=5;
-  const tab = k===0?"registrados":"registrar";
+  const tab = k===0?"registrados":(k===-3?"pagos":"registrar");
   updateHeader();
   document.querySelectorAll("#tabs .tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tab));
   $("tabCnt").textContent = getRegs().length;
@@ -915,7 +1008,7 @@ function commitPending(){
 }
 /* ===================== GENERAL ===================== */
 function validate(s){return [null,validate1,validate2,validate3,validateResumen,validate4][s]();}
-function renderAll(){ if(S.step===-2)renderLogin(); if(S.step===0)renderHome(); if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
+function renderAll(){ if(S.step===-3)renderPagos(); if(S.step===-2)renderLogin(); if(S.step===0)renderHome(); if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
 
 function saveDraft(silent){
   if(!silent) S.guardados.push(new Date().toISOString());
@@ -1279,8 +1372,148 @@ function goRegistrar(){ if(!SESSION){ afterLogin=null; return go(-2); } const d=
 function initPortal(){
   document.querySelectorAll("#tabs .tab").forEach(t=>t.onclick=()=>{
     if(t.dataset.tab==="registrar"){ if(S.step>=1&&S.step<=5) return; return goRegistrar(); }
+    if(t.dataset.tab==="pagos"){ leaveWizard(); return go(-3); }
     leaveWizard(); go(0);
   });
+}
+
+/* ===================== SEGUIMIENTO DE PAGOS ===================== */
+/* Prototipo: cualquier usuario puede registrar pagos y queda constancia en el historial.
+   En producción esto debe restringirse al administrador electoral de cada candidatura. */
+let pgCandSel="", pgShowAll=false, pgCur=null;
+const hoyISO = () => new Date().toISOString().slice(0,10);
+const diasEntre = (a,b) => Math.round((new Date(b)-new Date(a))/864e5);
+function pagosDe(d){
+  const p=d.pago||{};
+  if(Array.isArray(p.pagos)) return p.pagos;
+  return p.estado==="Pagado" ? [{fecha:p.fecha||"",monto:d.monto,medio:"No informado",oper:"",archivo:p.archivo||"",obs:"",reg:null}] : [];
+}
+function infoDoc(d){
+  const pagos=pagosDe(d), pagado=Math.min(pagos.reduce((a,x)=>a+x.monto,0),d.monto), saldo=d.monto-pagado;
+  const est = d.monto===0 ? "pag" : (saldo<=0 ? "pag" : (pagado>0 ? "parc" : "pend"));
+  const sinResp = pagos.some(x=>!x.archivo);
+  const dias = d.fecha ? diasEntre(d.fecha, hoyISO()) : null;
+  const ult = pagos.length ? pagos.map(x=>x.fecha).sort().slice(-1)[0] : "";
+  return {pagos,pagado,saldo,est,sinResp,dias,ult};
+}
+function allDocs(){
+  const out=[];
+  getRegs().forEach((r,ri)=>(r.documentosEmitidos||[]).forEach((d,di)=>out.push({r,ri,d,di,i:infoDoc(d)})));
+  return out;
+}
+const EST_LBL={pag:["env","Pagado"],parc:["par","Pago parcial"],pend:["bor","Pendiente"]};
+function renderPagos(){
+  const docs=allDocs();
+  // resumen por candidatura
+  const g={};
+  docs.forEach(({r,d,i})=>{ const k=d.cand||"(sin candidatura)"; const x=g[k]=g[k]||{prov:new Set(),n:0,fac:0,pag:0,sin:0};
+    x.prov.add(cleanRut(r.proveedor.rut)); x.n++; x.fac+=d.monto; x.pag+=i.pagado; if(i.pagos.length&&i.sinResp) x.sin++; });
+  let rows=Object.entries(g).sort((a,b)=>(b[1].fac-b[1].pag)-(a[1].fac-a[1].pag)||a[0].localeCompare(b[0],"es"));
+  const total=rows.length, LIM=10;
+  if(!pgShowAll && !pgCandSel) rows=rows.slice(0,LIM);
+  else if(!pgShowAll && pgCandSel) rows=rows.filter(([k],idx)=>idx<LIM||k===pgCandSel);
+  $("tCandPag").querySelector("tbody").innerHTML = rows.map(([k,x])=>{
+    const pct=x.fac?Math.round(x.pag/x.fac*100):100;
+    return `<tr class="clk ${k===pgCandSel?"on":""}" data-pgc="${esc(k)}"><td>${esc(k)}</td><td class="r">${x.prov.size}</td><td class="r">${x.n}</td><td class="r">${fmt(x.fac)}</td><td class="r">${fmt(x.pag)}</td><td class="r">${fmt(x.fac-x.pag)}</td>
+      <td><div class="pgbar"><span><i style="width:${pct}%"></i></span>${pct}%</div></td><td class="r">${x.sin?`<span class="resp-no">${x.sin}</span>`:"0"}</td></tr>`;
+  }).join("") || `<tr><td colspan="8" class="empty">No hay documentos registrados.</td></tr>`;
+  $("pgMore").textContent = total>LIM ? (pgShowAll?"Mostrar menos":`Ver las ${total} candidaturas`) : "";
+  document.querySelectorAll("[data-pgc]").forEach(tr=>tr.onclick=()=>{ const k=tr.dataset.pgc; pgCandSel = pgCandSel===k?"":k; $("pgCand").value=pgCandSel; renderPagos(); });
+  // filtro de candidaturas
+  const cands=Object.keys(g).sort((a,b)=>a.localeCompare(b,"es"));
+  const curC=pgCandSel;
+  $("pgCand").innerHTML=`<option value="">Todas las candidaturas</option>`+cands.map(c=>`<option>${esc(c)}</option>`).join("");
+  $("pgCand").value=curC;
+  // detalle
+  const q=$("pgQ").value.trim(), est=$("pgEst").value, nq=norm(q), cq=cleanRut(q).toLowerCase();
+  const list=docs.filter(({r,d,i})=>{
+    if(pgCandSel && d.cand!==pgCandSel) return false;
+    if(est==="pend"&&i.est!=="pend") return false;
+    if(est==="parc"&&i.est!=="parc") return false;
+    if(est==="pag"&&i.est!=="pag") return false;
+    if(est==="sinresp"&&!(i.pagos.length&&i.sinResp)) return false;
+    if(est==="venc"&&!(i.est!=="pag"&&i.dias>30)) return false;
+    if(!q) return true;
+    const h=norm([r.proveedor.razon,r.proveedor.rut,cleanRut(r.proveedor.rut),d.num,d.cand].join(" "));
+    return h.includes(nq) || (cq.length>=3 && /\d/.test(q) && h.includes(cq));
+  }).sort((a,b)=>({pend:0,parc:1,pag:2}[a.i.est]-{pend:0,parc:1,pag:2}[b.i.est]) || String(a.d.fecha).localeCompare(String(b.d.fecha)));
+  const sP=list.reduce((a,x)=>a+x.i.pagado,0), sT=list.reduce((a,x)=>a+x.d.monto,0);
+  $("pgCount").innerHTML=`${list.length} documento${list.length===1?"":"s"} · facturado ${fmt(sT)} · pagado ${fmt(sP)} · saldo <b style="color:var(--navy)">${fmt(sT-sP)}</b>`;
+  $("tPgDocs").innerHTML = list.map(({r,ri,d,di,i})=>{
+    const [cl,lb]=EST_LBL[i.est];
+    const age = i.est==="pag" ? (i.ult&&d.fecha?`pagado a ${diasEntre(d.fecha,i.ult)} días`:"") : (i.dias!=null?`${i.dias} días desde emisión`:"");
+    const resp = !i.pagos.length ? `<small>—</small>` : (i.sinResp ? `<span class="resp-no">⚠ Sin respaldo</span>` : `<span class="resp-ok">✓ Respaldado</span>`);
+    return `<tr><td>${n0(d.num)}</td><td>${fd(d.fecha)}</td><td><b>${esc(r.proveedor.razon)}</b><br><small>${esc(r.proveedor.rut)}</small></td><td>${esc(d.cand)}</td>
+      <td class="r">${fmt(d.monto)}</td><td class="r">${fmt(i.pagado)}</td><td class="r">${fmt(i.saldo)}</td>
+      <td><span class="st ${cl}">${lb}</span><span class="age ${i.est!=="pag"&&i.dias>30?"late":""}">${age}</span></td><td>${resp}</td>
+      <td><button class="btn btn-out btn-sm" style="min-width:0;padding:0 12px" data-pgdoc="${ri}:${di}">${i.est==="pag"?"Ver":"Registrar pago"}</button></td></tr>`;
+  }).join("") || `<tr><td colspan="10" class="empty">No hay documentos que coincidan con el filtro.</td></tr>`;
+  document.querySelectorAll("[data-pgdoc]").forEach(b=>b.onclick=()=>{ const [ri,di]=b.dataset.pgdoc.split(":").map(Number); openPago(ri,di); });
+}
+function openPago(ri,di){
+  pgCur={ri,di};
+  const r=getRegs()[ri], d=r.documentosEmitidos[di], i=infoDoc(d);
+  $("pgmTitle").textContent=`${d.tipo} N° ${n0(d.num)}`;
+  $("pgmSub").innerHTML=`${esc(r.proveedor.razon)} (${esc(r.proveedor.rut)}) · Candidatura: <b>${esc(d.cand)}</b> · Emitido ${fd(d.fecha)}`;
+  $("pgmSum").innerHTML=`<div>Monto del documento<b>${fmt(d.monto)}</b></div><div>Pagado por la candidatura<b style="color:var(--ok)">${fmt(i.pagado)}</b></div><div>Saldo pendiente<b style="color:${i.saldo?"#9a6a00":"var(--ok)"}">${fmt(i.saldo)}</b></div>`;
+  $("pgmList").innerHTML = i.pagos.length ? `<table class="pg-list"><thead><tr><th>Fecha</th><th class="r">Monto</th><th>Medio</th><th>N° operación</th><th>Respaldo</th><th></th></tr></thead><tbody>${
+    i.pagos.map((x,k)=>`<tr><td>${fd(x.fecha)}</td><td class="r">${fmt(x.monto)}</td><td>${esc(x.medio||"—")}</td><td>${esc(x.oper||"—")}</td>
+      <td>${x.archivo?(x.data?`<a data-verc="${k}">📎 ${esc(x.archivo)}</a>`:`📎 ${esc(x.archivo)}`):`<span class="resp-no">Sin respaldo</span> <a data-addc="${k}" style="color:var(--red)">+ Adjuntar</a>`}</td>
+      <td><button class="del" data-delp="${k}" title="Anular este pago">✕</button></td></tr>`).join("")}</tbody></table>`
+    : `<div class="draftinfo">Aún no hay pagos registrados para este documento.</div>`;
+  const hist=(d.pago&&d.pago.historial)||[];
+  $("pgmHist").innerHTML = hist.length ? hist.slice().reverse().map(h=>`<li>${fdt(h.f)} · ${esc(h.a)} <small style="color:var(--muted)">— ${esc(h.por)}</small></li>`).join("") : `<li style="color:var(--muted)">Sin movimientos registrados.</li>`;
+  $("pgmFecha").value=hoyISO(); $("pgmMonto").value=i.saldo?i.saldo.toLocaleString("es-CL"):""; $("pgmOper").value=""; $("pgmObs").value=""; $("pgmFile").value="";
+  $("pgmErr").classList.remove("show");
+  $("pgmSave").disabled = i.saldo<=0; $("pgmSave").style.opacity = i.saldo<=0?.5:1;
+  $("pgmSave").textContent = i.saldo<=0 ? "Documento pagado" : "Registrar pago";
+  document.querySelectorAll("[data-verc]").forEach(a=>a.onclick=()=>{ const x=i.pagos[+a.dataset.verc]; const w=window.open(); if(w) w.document.write(`<title>${esc(x.archivo)}</title><iframe src="${x.data}" style="border:0;width:100%;height:100vh"></iframe>`); });
+  document.querySelectorAll("[data-delp]").forEach(b=>b.onclick=()=>{ if(!confirm("¿Anular este pago? Quedará registrado en el historial.")) return; mutateDoc(p=>{ const x=p.pagos.splice(+b.dataset.delp,1)[0]; return `Pago anulado: ${fmt(x.monto)} del ${fd(x.fecha)}`; }); });
+  document.querySelectorAll("[data-addc]").forEach(a=>a.onclick=()=>{ const inp=document.createElement("input"); inp.type="file"; inp.accept=".pdf,.jpg,.jpeg,.png";
+    inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return; const data=await fileData(f); mutateDoc(p=>{ const x=p.pagos[+a.dataset.addc]; x.archivo=f.name; x.data=data; return `Respaldo adjuntado al pago del ${fd(x.fecha)}: ${f.name}`; }); };
+    inp.click(); });
+  $("pgModal").classList.remove("hidden"); $("pgModal").scrollTop=0;
+}
+function closePago(){ $("pgModal").classList.add("hidden"); pgCur=null; renderPagos(); }
+function fileData(f){ return new Promise(res=>{ if(f.size>400*1024) return res(""); const fr=new FileReader(); fr.onload=()=>res(fr.result); fr.onerror=()=>res(""); fr.readAsDataURL(f); }); }
+function mutateDoc(fn){
+  const regs=getRegs(), r=regs[pgCur.ri], d=r.documentosEmitidos[pgCur.di];
+  d.pago=d.pago||{estado:"Pendiente",fecha:"",archivo:""};
+  d.pago.pagos=pagosDe(d).map(x=>({...x}));
+  const accion=fn(d.pago);
+  const i=infoDoc(d);
+  d.pago.estado = i.est==="pag" ? "Pagado" : "Pendiente";
+  d.pago.fecha = i.ult || ""; d.pago.archivo = (d.pago.pagos.filter(x=>x.archivo).slice(-1)[0]||{}).archivo || "";
+  d.pago.historial=(d.pago.historial||[]); d.pago.historial.push({f:new Date().toISOString(),a:accion,por:SESSION?`${SESSION.razon} (${SESSION.rut})`:"Usuario sin sesión"});
+  // recalcular totales de la inscripción
+  const docsR=r.documentosEmitidos, pagT=docsR.reduce((a,x)=>a+infoDoc(x).pagado,0);
+  r.totales.pagado=pagT; r.totales.pendiente=r.totales.emitido-pagT;
+  if(!setRegs(regs)) return toast("No se pudo guardar (el comprobante puede ser muy grande)");
+  toast(accion); openPago(pgCur.ri,pgCur.di);
+}
+function initPagos(){
+  $("pgQ").addEventListener("input",()=>{ if(S.step===-3) renderPagos(); });
+  $("pgEst").addEventListener("change",()=>renderPagos());
+  $("pgCand").addEventListener("change",()=>{ pgCandSel=$("pgCand").value; renderPagos(); });
+  $("pgMore").onclick=()=>{ pgShowAll=!pgShowAll; renderPagos(); };
+  $("pgmClose").onclick=closePago; $("pgmCancel").onclick=closePago;
+  $("pgModal").addEventListener("click",e=>{ if(e.target.id==="pgModal") closePago(); });
+  document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("pgModal").classList.contains("hidden")) closePago(); });
+  $("pgmMonto").addEventListener("input",()=>{ const v=num($("pgmMonto").value); $("pgmMonto").value=v?v.toLocaleString("es-CL"):""; });
+  $("pgmSave").onclick=async()=>{
+    const r=getRegs()[pgCur.ri], d=r.documentosEmitidos[pgCur.di], i=infoDoc(d);
+    const fecha=$("pgmFecha").value, monto=num($("pgmMonto").value), f=$("pgmFile").files[0];
+    if(!fecha) return formErr("pgmErr","Indique la fecha de pago.");
+    if(d.fecha && fecha<d.fecha) return formErr("pgmErr","La fecha de pago no puede ser anterior a la emisión del documento.");
+    if(fecha>hoyISO()) return formErr("pgmErr","La fecha de pago no puede ser futura.");
+    if(!monto) return formErr("pgmErr","Indique el monto pagado.");
+    if(monto>i.saldo) return formErr("pgmErr",`El monto supera el saldo pendiente (${fmt(i.saldo)}).`);
+    if(f && f.size>5*1024*1024) return formErr("pgmErr","El comprobante supera 5 MB.");
+    formErr("pgmErr","");
+    const data = f ? await fileData(f) : "";
+    mutateDoc(p=>{ p.pagos.push({fecha,monto,medio:$("pgmMedio").value,oper:$("pgmOper").value.trim(),archivo:f?f.name:"",data,obs:$("pgmObs").value.trim()});
+      return `Pago registrado: ${fmt(monto)} (${$("pgmMedio").value})${f?" con respaldo":" sin respaldo"}`; });
+  };
 }
 
 /* ===================== AUTOGUARDADO ===================== */
@@ -1320,7 +1553,7 @@ try{ if(localStorage.getItem("registroProveedoresSeed")!=="xlsx-v2") loadDemo(tr
 SESSION=readSession();
 STORAGE_KEY = SESSION ? DRAFT_BASE+":"+cleanRut(SESSION.rut) : DRAFT_BASE;
 const recuperado = SESSION ? loadDraft() : false;
-loadStep1(); initHome(); initPortal(); initAuth(); go(0); restorePending();
+loadStep1(); initHome(); initPortal(); initAuth(); initPagos(); go(0); restorePending();
 if(recuperado) setAutoLabel("✓ Borrador recuperado"+(S.actualizado?" · último cambio "+fdt(S.actualizado):""),"ok");
 </script>
 </body>
