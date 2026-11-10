@@ -148,6 +148,15 @@
     .kpi{border-left:0}
     .kpi + .kpi{border-top:1px solid #e1e5ec}
   }
+  /* Vista previa */
+  .preview{position:fixed;inset:0;background:rgba(20,25,50,.55);z-index:50;overflow:auto;padding:0 16px 30px}
+  .preview.hidden{display:none}
+  .preview-bar{position:sticky;top:0;z-index:2;max-width:860px;margin:0 auto;background:#fff;border-radius:0 0 8px 8px;padding:10px 16px;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.15);color:var(--navy)}
+  .preview .cert{margin-top:16px}
+  .cert.preview{overflow:hidden}
+  .cert.preview::after{content:"VISTA PRELIMINAR";position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) rotate(-28deg);font-size:76px;font-weight:800;color:rgba(192,0,0,.07);white-space:nowrap;pointer-events:none;letter-spacing:.05em}
+  .prelim-box{background:#eef1fa;border:1px solid #c7cde3;color:var(--navy);border-radius:5px;padding:9px 12px;font-size:12px;margin-bottom:12px;line-height:1.45}
+  .prelim-box ul{margin:4px 0 0;padding-left:18px;color:var(--red)}
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -249,6 +258,8 @@
     header,.stepper,footer.actions,.toast,.noprint{display:none!important}
     main{padding:0}
     .cert{border-width:1.5px;margin:0;max-width:none}
+    body.previewing .app{display:none!important}
+    body.previewing .preview{position:static;background:none;padding:0;overflow:visible}
     @page{margin:14mm}
   }
   @media(max-width:860px){
@@ -513,10 +524,21 @@
     <div class="note hidden" id="nota">Inscripción gratuita · requisito para reembolsos sobre 30 UF</div>
     <div class="right">
       <span class="autosave" id="autosave"></span>
+      <button class="btn btn-out hidden" id="btnPreview">👁 Vista previa del certificado</button>
       <button class="btn btn-out" id="guardar">Guardar borrador</button>
       <button class="btn btn-red" id="continuar">Continuar →</button>
     </div>
   </footer>
+</div>
+<div class="preview hidden" id="preview">
+  <div class="preview-bar noprint">
+    <b>Vista preliminar del certificado</b>
+    <div class="right" style="gap:10px">
+      <button class="btn btn-out btn-sm" id="pvPrint">Imprimir / PDF</button>
+      <button class="btn btn-red btn-sm" id="pvClose">Cerrar vista previa</button>
+    </div>
+  </div>
+  <div class="cert" id="previewCert"></div>
 </div>
 <div class="toast" id="toast"></div>
 
@@ -605,6 +627,7 @@ function go(k){
   $("actions").style.display = wiz?"":"none";
   $("volver").textContent = k===1?"← Proveedores":"← Volver";
   $("nota").classList.toggle("hidden",k!==5);
+  $("btnPreview").classList.toggle("hidden",!(k===4||k===5));
   $("continuar").textContent = k===5?"Enviar inscripción":(k===4?"Ir a declaración →":"Continuar →");
   renderStepper(); renderAll();
   window.scrollTo(0,0);
@@ -876,6 +899,27 @@ function hashCode(str){ // FNV-1a 64 bits aprox. en dos mitades → código de v
   for(let i=0;i<str.length;i++){const c=str.charCodeAt(i);h1=Math.imul(h1^c,16777619)>>>0;h2=Math.imul(h2^c,2246822507)>>>0;}
   return (h1.toString(16).padStart(8,"0")+h2.toString(16).padStart(8,"0")).toUpperCase().match(/.{4}/g).join("-");
 }
+const DECLARACIONES=["La información entregada es verídica y completa.","Informaré anulaciones, modificaciones y notas de crédito.","Acreditaré el pago cuando la autoridad electoral lo requiera."];
+function buildPayload(folio,fecha){
+  const pag=S.docs.filter(d=>pago(d).estado==="Pagado"), pen=S.docs.filter(d=>pago(d).estado!=="Pagado");
+  return {folio,fechaEnvio:fecha,inicioBorrador:S.creado,guardadosBorrador:S.guardados,
+    proveedor:{...S.prov},socios:S.socios,tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
+    documentosEmitidos:S.docs.map(d=>({...d,pago:{...pago(d)}})),documentosAnulados:S.anulados,
+    totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:sum(pag),pendiente:sum(pen)},
+    declaraciones:DECLARACIONES};
+}
+function showPreview(){
+  commitPending();
+  const p=buildPayload("PRELIMINAR",null);
+  p.preliminar=true; p.declAceptadas=[...S.decl]; p.codigoVerificacion="Se asigna al enviar";
+  const pend=issues(); p.pendientes=[...pend[1],...pend[2],...pend[3]];
+  if(S.docs.some(d=>pago(d).estado==="Pagado"&&!pago(d).fecha)) p.pendientes.push("Falta la fecha de pago de documentos marcados como pagados por la candidatura");
+  if(!S.decl.every(Boolean)) p.pendientes.push("Faltan declaraciones por aceptar");
+  renderCert(p,$("previewCert"));
+  $("preview").classList.remove("hidden"); document.body.classList.add("previewing");
+  $("preview").scrollTop=0;
+}
+function closePreview(){ $("preview").classList.add("hidden"); document.body.classList.remove("previewing"); }
 function submit(){
   const ahora=new Date();
   const folio="RPE-"+ahora.getFullYear()+"-"+String(Date.now()).slice(-6)+Math.random().toString(36).slice(2,4).toUpperCase();
@@ -884,7 +928,7 @@ function submit(){
     proveedor:S.prov,socios:S.socios,tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
     documentosEmitidos:S.docs.map(d=>({...d,pago:pago(d)})),documentosAnulados:S.anulados,
     totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:sum(pag),pendiente:sum(pen)},
-    declaraciones:["La información entregada es verídica y completa.","Informaré anulaciones, modificaciones y notas de crédito.","Acreditaré el pago cuando la autoridad electoral lo requiera."]};
+    declaraciones:DECLARACIONES};
   payload.codigoVerificacion=hashCode(JSON.stringify(payload));
   /* Aquí se conectaría el backend: fetch("/api/inscripciones",{method:"POST",body:JSON.stringify(payload)}) */
   if(SESSION) payload.cuenta={rut:SESSION.rut,email:SESSION.email};
@@ -900,16 +944,17 @@ function stateFrom(p){
     docs:(p.documentosEmitidos||[]).map(({pago,...d})=>d), anulados:p.documentosAnulados||[],
     pagos:Object.fromEntries((p.documentosEmitidos||[]).map(d=>[d.tipo+"|"+d.num,d.pago||{estado:"Pendiente",fecha:"",archivo:""}]))};
 }
-function renderCert(p,target){ const saved=S; S=stateFrom(p); try{ (target||$("cert")).innerHTML=certHTML(p); } finally { S=saved; } }
+function renderCert(p,target){ const saved=S; S=stateFrom(p); const el=target||$("cert"); try{ el.innerHTML=certHTML(p); el.classList.toggle("preview",!!p.preliminar); } finally { S=saved; } }
 function certHTML(p){
   const t=p.totales;
   return `
     <div class="cert-top">
       <div><h2>Certificado de inscripción</h2><p>Registro de Proveedores Electorales</p></div>
-      <div class="cert-folio">Folio<b>${p.folio}</b>Emitido: ${fdt(p.fechaEnvio)}</div>
+      <div class="cert-folio">Folio<b>${p.folio}</b>${p.preliminar?"Aún no enviado":"Emitido: "+fdt(p.fechaEnvio)}</div>
     </div>
+    ${p.preliminar?`<div class="prelim-box"><b>VISTA PRELIMINAR — documento sin validez.</b> Así se verá su certificado con la información registrada hasta ahora. El folio y el código de verificación se asignan al enviar la inscripción.${p.pendientes&&p.pendientes.length?`<div style="margin-top:6px"><b>Pendiente antes de enviar:</b><ul>${p.pendientes.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>`:`<div style="margin-top:6px;color:var(--ok)"><b>✓ La inscripción está completa y lista para enviar.</b></div>`}</div>`:""}
     ${p.ejemplo?`<div class="ejemplo-box">⚠ <b>Registro de ejemplo — no constituye certificado válido.</b> Candidatura, RUT, razón social y documentos provienen del archivo <i>${esc(p.origen||"")}</i>. Representante legal, contacto, dirección, socios, beneficiarios finales y estado de pago son <b>datos ficticios</b> para demostración.</div>`:""}
-    <p class="lead">Se certifica que <b>${esc(p.proveedor.razon)}</b>, RUT <b>${esc(p.proveedor.rut)}</b>, representada legalmente por
+    <p class="lead">${p.preliminar?"Al enviar la inscripción se certificará que":"Se certifica que"} <b>${esc(p.proveedor.razon)}</b>, RUT <b>${esc(p.proveedor.rut)}</b>, representada legalmente por
       <b>${esc(p.proveedor.repNombre)}</b> (RUT ${esc(p.proveedor.repRut)}), completó su inscripción en el Registro de Proveedores Electorales
       en la categoría <b>${esc(p.proveedor.categoria)}</b>, con el detalle que se indica a continuación.</p>
 
@@ -925,12 +970,12 @@ function certHTML(p){
       <div>Pagado<b>${fmt(t.pagado)}</b></div><div>Pendiente<b>${fmt(t.pendiente)}</b></div>
     </div>
     <h3>4. Declaraciones aceptadas</h3>
-    <ul class="timeline">${p.declaraciones.map(d=>`<li>✓ ${d}</li>`).join("")}</ul>
+    <ul class="timeline">${p.declaraciones.map((d,i)=>p.declAceptadas&&!p.declAceptadas[i]?`<li style="color:var(--red)">☐ ${d} <i>(pendiente de aceptar)</i></li>`:`<li>✓ ${d}</li>`).join("")}</ul>
     <h3>Trazabilidad del proceso</h3>
     <ul class="timeline">
       <li>Inicio del borrador: ${fdt(p.inicioBorrador)}</li>
       ${p.guardadosBorrador.map((g,i)=>`<li>Borrador guardado (${i+1}): ${fdt(g)}</li>`).join("")}
-      <li>Envío de la inscripción: ${fdt(p.fechaEnvio)}</li>
+      <li>Envío de la inscripción: ${p.preliminar?"pendiente":fdt(p.fechaEnvio)}</li>
     </ul>
     <div class="cert-foot">
       <div>Código de verificación<br><span class="vcode">${p.codigoVerificacion}</span></div>
@@ -950,6 +995,11 @@ function resetForm(){S=emptyState();ultimoEnvio=null;["sRut","sNombre","sPct","v
 $("nueva").onclick=()=>{resetForm();go(1);};
 $("aInicio").onclick=()=>go(0);
 $("imprimir").onclick=()=>window.print();
+$("btnPreview").onclick=showPreview;
+$("pvClose").onclick=closePreview;
+$("pvPrint").onclick=()=>window.print();
+$("preview").addEventListener("click",e=>{ if(e.target.id==="preview") closePreview(); });
+document.addEventListener("keydown",e=>{ if(e.key==="Escape" && !$("preview").classList.contains("hidden")) closePreview(); });
 $("descJson").onclick=()=>{ if(!ultimoEnvio) return;
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(ultimoEnvio,null,2)],{type:"application/json"}));
