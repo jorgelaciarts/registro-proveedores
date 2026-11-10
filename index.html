@@ -134,7 +134,10 @@
   .steps-list b{display:block;font-size:13.5px;color:var(--text)}
   .steps-list small{color:var(--muted);font-size:12px}
   .steps-list .stt{margin-left:auto;align-self:center}
-  .pactions{display:flex;gap:10px;flex-wrap:wrap}
+  .pactions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .reg-center{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:10px 10px 20px}
+  .reg-icon{width:64px;height:64px;border-radius:50%;background:var(--navy-soft);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:14px}
+  #portalDraft{font-size:14px;line-height:1.55;margin:0 0 18px;max-width:380px;color:var(--text)}
   /* Inicio */
   .home-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
   .home-head h2{font-size:18px;margin:8px 0 2px}
@@ -157,6 +160,9 @@
   .ficha-bar .right{gap:10px}
   .otras{max-width:860px;margin:8px auto 0;font-size:12px;color:var(--muted)}
   .otras button{background:none;border:0;color:var(--red);font-weight:600;cursor:pointer;font-size:12px}
+  #tHome td:nth-child(2),#tHome td:nth-child(3),#tHome td:nth-child(7),#tHome td:nth-child(8){white-space:nowrap}
+  #tHome td:nth-child(9){white-space:nowrap;font-size:12px}
+  #tHome td:nth-child(1) .st{display:inline-block;margin:1px 0}
   .autosave{font-size:12px;color:var(--muted);align-self:center;white-space:nowrap}
   .autosave.ok{color:var(--ok)}
   .autosave.err{color:var(--red)}
@@ -225,13 +231,12 @@
       <div class="logo">LOGO</div>
       <h1>Registro de Proveedores Electorales <span class="tag">Prototipo</span></h1>
     </div>
-    <nav><a href="#" id="navInicio">Inicio</a><span>·</span><a href="#" id="navCuenta">Iniciar sesión</a><span>·</span><a href="#">Ayuda</a><span id="salirSep">·</span><a href="#" id="salir">Salir</a></nav>
+    <nav><a href="#" id="navInicio">Proveedores</a><span>·</span><a href="#" id="navCuenta">Iniciar sesión</a><span>·</span><a href="#">Ayuda</a><span id="salirSep">·</span><a href="#" id="salir">Salir</a></nav>
   </header>
 
   <nav class="tabs" id="tabs">
-    <button class="tab" data-tab="inicio">Inicio</button>
     <button class="tab" data-tab="registrados">Proveedores registrados <span class="cnt" id="tabCnt">0</span></button>
-    <button class="tab" data-tab="registrar">Registrar proveedor</button>
+    <button class="tab" data-tab="registrar">Ingreso proveedor</button>
   </nav>
 
   <div class="stepper" id="stepper"></div>
@@ -271,38 +276,6 @@
       </div>
     </section>
 
-    <!-- PORTADA -->
-    <section data-step="-1" class="hidden">
-      <div class="hero">
-        <h2>Registro de Proveedores Electorales</h2>
-        <p>Consulte los proveedores inscritos o registre la información de su empresa en 5 pasos.</p>
-      </div>
-      <div class="portal">
-        <div class="pcard">
-          <h3>Proveedores registrados</h3>
-          <p>Resumen de las inscripciones enviadas. Busque por nombre o RUT para ver la ficha completa.</p>
-          <div class="cards" id="portalStats"></div>
-          <div class="grow">
-            <table class="mini"><thead><tr><th>RUT</th><th>Razón social</th><th class="r">Emitido</th><th>Fecha</th></tr></thead><tbody id="portalUltimos"></tbody></table>
-          </div>
-          <div class="searchbar" style="grid-template-columns:1fr auto;margin:14px 0 0">
-            <input id="portalQ" type="search" placeholder="🔍  Buscar por nombre o RUT…">
-            <button class="btn btn-red" id="portalBuscar">Buscar</button>
-          </div>
-        </div>
-        <div class="pcard">
-          <h3>Registrar proveedor</h3>
-          <div class="sessionbox" id="portalSession"></div>
-          <p id="portalDraft">Complete los 5 pasos para inscribir a su empresa. Sus cambios se guardan automáticamente.</p>
-          <ul class="steps-list grow" id="portalSteps"></ul>
-          <div class="pactions">
-            <button class="btn btn-red" id="portalReg">Comenzar inscripción →</button>
-            <button class="btn btn-out hidden" id="portalNueva">Empezar una nueva</button>
-          </div>
-        </div>
-      </div>
-    </section>
-
     <!-- INICIO: BUSCADOR DE PROVEEDORES -->
     <section data-step="0" class="hidden">
       <div class="noprint">
@@ -314,10 +287,8 @@
           <div class="right">
             <button class="btn btn-out btn-sm" id="btnImport">Importar</button>
             <button class="btn btn-out btn-sm" id="btnExport">Exportar registro</button>
-            <button class="btn btn-red btn-sm" id="btnNueva">+ Nueva inscripción</button>
           </div>
         </div>
-        <div class="banner hidden" id="draftBanner"></div>
         <div class="cards" id="homeStats"></div>
         <div class="searchbar">
           <input id="q" type="search" placeholder="🔍  Buscar por nombre o RUT…" autocomplete="off">
@@ -494,7 +465,7 @@
         <button class="btn btn-red" id="imprimir">Imprimir / Guardar PDF</button>
         <button class="btn btn-out" id="descJson">Descargar datos (JSON)</button>
         <button class="btn btn-out" id="nueva">Nueva inscripción</button>
-        <button class="btn btn-out" id="aInicio">Ir al inicio</button>
+        <button class="btn btn-out" id="aInicio">Ver proveedores registrados</button>
       </div>
       <div class="cert" id="cert"></div>
     </section>
@@ -589,13 +560,13 @@ function go(k){
   S.step=k;
   document.querySelectorAll("section[data-step]").forEach(s=>s.classList.toggle("hidden",+s.dataset.step!==k));
   const wiz = k>=1 && k<=5;
-  const tab = k===-1?"inicio":(k===0?"registrados":"registrar");
+  const tab = k===0?"registrados":"registrar";
   updateHeader();
   document.querySelectorAll("#tabs .tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tab));
   $("tabCnt").textContent = getRegs().length;
   $("stepper").style.display = wiz?"":"none";
   $("actions").style.display = wiz?"":"none";
-  $("volver").textContent = k===1?"← Inicio":"← Volver";
+  $("volver").textContent = k===1?"← Proveedores":"← Volver";
   $("nota").classList.toggle("hidden",k!==5);
   $("continuar").textContent = k===5?"Enviar inscripción":(k===4?"Ir a declaración →":"Continuar →");
   renderStepper(); renderAll();
@@ -833,7 +804,7 @@ function commitPending(){
 }
 /* ===================== GENERAL ===================== */
 function validate(s){return [null,validate1,validate2,validate3,validateResumen,validate4][s]();}
-function renderAll(){ if(S.step===-2)renderLogin(); if(S.step===-1)renderPortal(); if(S.step===0)renderHome(); if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
+function renderAll(){ if(S.step===-2)renderLogin(); if(S.step===0)renderHome(); if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
 
 function saveDraft(silent){
   if(!silent) S.guardados.push(new Date().toISOString());
@@ -918,11 +889,11 @@ $("continuar").onclick=()=>{
   if(S.step===5) return submit();
   saveDraft(true); go(S.step+1);
 };
-$("volver").onclick=()=>{ commitPending(); if(S.step===1){ autoSave(); go(-1); } else go(S.step-1); };
+$("volver").onclick=()=>{ commitPending(); if(S.step===1){ autoSave(); go(0); } else go(S.step-1); };
 $("guardar").onclick=()=>{ if(!commitPending()) return toast("Hay un registro escrito sin agregar con errores"); saveDraft(false); if(S.step!==4) go(4); else renderResumen(); };
 function resetForm(){S=emptyState();ultimoEnvio=null;["sRut","sNombre","sPct","vCand","dNum","dMonto","aNum","aNC","aMonto"].forEach(id=>$(id).value="");document.querySelectorAll(".decl").forEach(c=>c.checked=false);document.querySelectorAll("input[name=vinc]").forEach(r=>r.checked=false);document.querySelectorAll(".err").forEach(e=>e.textContent="");document.querySelectorAll(".invalid").forEach(e=>e.classList.remove("invalid"));loadStep1();setAutoLabel("");}
 $("nueva").onclick=()=>{resetForm();go(1);};
-$("aInicio").onclick=()=>go(-1);
+$("aInicio").onclick=()=>go(0);
 $("imprimir").onclick=()=>window.print();
 $("descJson").onclick=()=>{ if(!ultimoEnvio) return;
   const a=document.createElement("a");
@@ -969,15 +940,6 @@ function fillFilters(){
 }
 function renderHome(){
   const regs=getRegs(), q=$("q").value, cat=$("fCat").value, reg=$("fReg").value;
-  const draft=draftData();
-  // borrador en curso
-  const b=$("draftBanner");
-  if(draft){
-    b.classList.remove("hidden");
-    b.innerHTML=`<span>📝 Tienes una inscripción en borrador${draft.prov.razon?` de <b>${esc(draft.prov.razon)}</b>`:""} · paso ${Math.min(Math.max(draft.step||1,1),5)} de 5${draft.actualizado?` · último cambio ${fdt(draft.actualizado)}`:""}</span>
-      <button class="btn btn-red btn-sm" id="contDraft">Continuar borrador</button>`;
-    $("contDraft").onclick=()=>{ go(Math.min(Math.max(draft.step||1,1),5)); restorePending(); };
-  } else b.classList.add("hidden");
   // indicadores
   const ruts=new Set(regs.map(r=>cleanRut(r.proveedor.rut)));
   const tot=k=>regs.reduce((a,r)=>a+((r.totales||{})[k]||0),0);
@@ -995,18 +957,14 @@ function renderHome(){
   const frase=norm(q).trim();
   if(frase.includes(" ")){ const exact=list.filter(({r})=>haystack(r).includes(frase)); if(exact.length){ list.length=0; list.push(...exact); } }
   let rows="";
-  if(draft && matches({proveedor:draft.prov,socios:draft.socios,vinculos:draft.listaVinc,documentosEmitidos:draft.docs},q) && (!cat||draft.prov.categoria===cat)&&(!reg||draft.prov.region===reg)){
-    rows+=`<tr class="clk" id="rowDraft"><td><span class="st bor">Borrador</span></td><td>—</td><td>${hl(draft.prov.rut,q)}</td><td>${hl(draft.prov.razon||"(sin razón social)",q)}</td><td>${esc(draft.prov.categoria||"—")}</td><td>${esc(draft.prov.comuna||"—")}</td><td class="r">${fmt((draft.docs||[]).reduce((a,d)=>a+d.monto,0))}</td><td class="r">—</td><td>${fdt(draft.actualizado||draft.creado)}</td></tr>`;
-  }
   rows+=list.map(({r,i})=>`<tr class="clk${i===fichaIdx?" sel":""}" data-ver="${i}">
       <td><span class="st env">Enviada</span>${r.ejemplo?`<span class="st ej" title="Socios, contacto y pagos ficticios">Ejemplo</span>`:""}</td><td>${esc(r.folio)}</td><td>${hl(r.proveedor.rut,q)}</td>
       <td><b>${hl(r.proveedor.razon,q)}</b></td>
       <td>${esc(r.proveedor.categoria)}</td><td>${esc(r.proveedor.comuna)}</td>
       <td class="r">${fmt(r.totales.neto)}</td><td class="r">${fmt(r.totales.pendiente)}</td><td>${fdt(r.fechaEnvio)}</td></tr>`).join("");
-  $("tHome").innerHTML = rows || `<tr><td colspan="9" class="empty">${regs.length||draft?"No hay proveedores que coincidan con la búsqueda.":`Aún no hay inscripciones registradas.<br><br><button class="btn btn-out btn-sm" id="btnDemo">Cargar proveedores de ejemplo (Provedores.xlsx)</button>`}</td></tr>`;
+  $("tHome").innerHTML = rows || `<tr><td colspan="9" class="empty">${regs.length?"No hay proveedores que coincidan con la búsqueda.":`Aún no hay inscripciones registradas.<br><br><button class="btn btn-out btn-sm" id="btnDemo">Cargar proveedores de ejemplo (Provedores.xlsx)</button>`}</td></tr>`;
   $("homeCount").textContent = (q||cat||reg) ? `${list.length} resultado${list.length===1?"":"s"} · haga clic en una fila para ver toda la información` : (regs.length?"Haga clic en una fila para ver toda la información del proveedor":"");
   document.querySelectorAll("[data-ver]").forEach(tr=>tr.onclick=()=>showFicha(+tr.dataset.ver,true));
-  if($("rowDraft")) $("rowDraft").onclick=()=>{ go(Math.min(Math.max(draft.step||1,1),5)); restorePending(); };
   if($("btnDemo")) $("btnDemo").onclick=()=>loadDemo();
   // ficha automática cuando la búsqueda deja un solo proveedor
   if(q.trim() && list.length===1) showFicha(list[0].i,false);
@@ -1051,12 +1009,6 @@ function loadDemo(silent){
 function initHome(){
   fillFilters();
   ["q","fCat","fReg"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",()=>{ if(S.step===0) renderHome(); }));
-  $("btnNueva").onclick=()=>{
-    if(!SESSION){ afterLogin="nueva"; return go(-2); }
-    if(draftData() && !confirm("Tienes un borrador en curso. ¿Descartarlo y comenzar una nueva inscripción?")) return;
-    try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
-    resetForm(); go(1);
-  };
   $("btnExport").onclick=()=>{ const r=getRegs(); if(!r.length) return toast("No hay inscripciones para exportar"); downloadJSON(r,"registro-proveedores-"+new Date().toISOString().slice(0,10)+".json"); };
   $("btnImport").onclick=()=>{ $("fileImport").value=""; $("fileImport").click(); };
   $("fileImport").onchange=async()=>{
@@ -1074,7 +1026,7 @@ function initHome(){
   $("fichaPrint").onclick=()=>window.print();
   $("fichaJson").onclick=()=>{ const p=getRegs()[fichaIdx]; if(p) downloadJSON(p,p.folio+".json"); };
   $("fichaClose").onclick=()=>{ hideFicha(); renderHome(); };
-  const toHome=e=>{ e.preventDefault(); leaveWizard(); go(-1); };
+  const toHome=e=>{ e.preventDefault(); leaveWizard(); go(0); };
   $("navInicio").onclick=toHome; $("brand").onclick=toHome;
 }
 
@@ -1126,15 +1078,15 @@ function startSession(acc,remember){
   useAccountDraft();
   toast("Bienvenido, "+acc.razon);
   const dest=afterLogin; afterLogin=null;
-  if(dest==="nueva"){ $("btnNueva").click(); }
+  if(dest==="nueva"){ resetForm(); go(1); }
   else if(typeof dest==="number"){ go(dest>=5&&!validateResumen()?4:dest); }
   else goRegistrar();
 }
 function logout(){
-  if(!SESSION){ go(-1); return; }
+  if(!SESSION){ go(0); return; }
   leaveWizard();
   try{ sessionStorage.removeItem(SES_KEY); localStorage.removeItem(SES_KEY); }catch(e){}
-  SESSION=null; useAccountDraft(); go(-1); toast("Sesión cerrada · su borrador quedó guardado");
+  SESSION=null; useAccountDraft(); go(0); toast("Sesión cerrada · su borrador quedó guardado");
 }
 function updateHeader(){
   $("navCuenta").innerHTML = SESSION ? `<span class="user-chip">👤 ${esc(SESSION.razon)}</span>` : "Iniciar sesión";
@@ -1184,7 +1136,7 @@ function initAuth(){
     formErr("signupErr",""); ["suRut","suRazon","suEmail","suPass","suPass2"].forEach(id=>$(id).value="");
     startSession(acc,true);
   };
-  $("navCuenta").onclick=e=>{ e.preventDefault(); if(SESSION){ leaveWizard(); go(-1); } else { afterLogin=null; go(-2); } };
+  $("navCuenta").onclick=e=>{ e.preventDefault(); if(SESSION){ leaveWizard(); go(0); } else { afterLogin=null; go(-2); } };
 }
 
 /* ===================== PORTADA Y PESTAÑAS ===================== */
@@ -1207,60 +1159,12 @@ function stepStatus(d){
   const started=[P1.some(k=>String(p[k]||"").trim()), soc.length>0||!!d.vinculos, (d.docs||[]).length>0||(d.anulados||[]).length>0];
   return [s1?2:started[0]?1:0, s2?2:started[1]?1:0, s3?2:started[2]?1:0, (s1&&s2&&s3)?2:0, (d.decl||[]).some(Boolean)?1:0];
 }
-function renderPortal(){
-  const regs=getRegs(), d=draftData();
-  const ruts=new Set(regs.map(r=>cleanRut(r.proveedor.rut)));
-  const tot=k=>regs.reduce((a,r)=>a+((r.totales||{})[k]||0),0);
-  $("portalStats").innerHTML=`
-    <div class="card"><small>Proveedores</small><b>${ruts.size}</b></div>
-    <div class="card"><small>Inscripciones</small><b>${regs.length}</b></div>
-    <div class="card"><small>Monto emitido (neto)</small><b>${fmt(tot("neto"))}</b></div>
-    <div class="card"><small>Pendiente de pago</small><b>${fmt(tot("pendiente"))}</b></div>`;
-  const ult=regs.map((r,i)=>({r,i})).sort((a,b)=>String(b.r.fechaEnvio).localeCompare(String(a.r.fechaEnvio))).slice(0,5);
-  $("portalUltimos").innerHTML = ult.length ? ult.map(({r,i})=>`<tr class="clk" data-pver="${i}"><td>${esc(r.proveedor.rut)}</td><td>${esc(r.proveedor.razon)}</td><td class="r">${fmt(r.totales.neto)}</td><td>${fdt(r.fechaEnvio).split(",")[0]}</td></tr>`).join("")
-    : `<tr><td colspan="4" class="empty">Aún no hay proveedores registrados.<br><br><button class="btn btn-out btn-sm" id="portalDemo">Cargar proveedores de ejemplo</button></td></tr>`;
-  document.querySelectorAll("[data-pver]").forEach(tr=>tr.onclick=()=>{ $("q").value=""; go(0); showFicha(+tr.dataset.pver,true); });
-  if($("portalDemo")) $("portalDemo").onclick=()=>{ loadDemo(); renderPortal(); };
-  // sesión
-  const misEnv = SESSION ? regs.filter(r=>cleanRut(r.proveedor.rut)===cleanRut(SESSION.rut)).length : 0;
-  $("portalSession").innerHTML = SESSION
-    ? `<span>👤 <b>${esc(SESSION.razon)}</b> · ${esc(SESSION.rut)}${misEnv?` · ${misEnv} inscripción${misEnv>1?"es":""} enviada${misEnv>1?"s":""}`:""}</span><a id="psOut">Cerrar sesión</a>`
-    : `<span>🔒 Para registrar información debe iniciar sesión como proveedor.</span><a id="psIn">Iniciar sesión</a>`;
-  if($("psOut")) $("psOut").onclick=logout;
-  if($("psIn")) $("psIn").onclick=()=>{ afterLogin=null; go(-2); };
-  // 5 pasos
-  const st=stepStatus(d), lbl=["No iniciado","En progreso","Completo"];
-  $("portalSteps").innerHTML = STEP_INFO.map(([t,desc],i)=>`<li data-pstep="${i+1}">
-      <span class="n ${st[i]===2?"ok":""}">${st[i]===2?"✓":i+1}</span>
-      <div><b>${t}</b><small>${desc}</small></div>
-      ${d?`<span class="stt st ${st[i]===2?"env":st[i]===1?"bor":""}" style="${st[i]===0?"background:#eef0f4;color:#777":""}">${lbl[st[i]]}</span>`:""}</li>`).join("");
-  document.querySelectorAll("[data-pstep]").forEach(li=>li.onclick=()=>{ const k=+li.dataset.pstep; if(!SESSION){ afterLogin=k; return go(-2); } go(k>=5&&!validateResumen()?4:k); restorePending(); });
-  if(!SESSION){
-    $("portalDraft").textContent="Complete los 5 pasos para inscribir a su empresa. Sus cambios se guardan automáticamente en su cuenta.";
-    $("portalReg").textContent="Iniciar sesión para registrar →";
-    $("portalNueva").classList.add("hidden");
-  } else if(d){
-    $("portalDraft").innerHTML=`Tienes una inscripción en borrador${d.prov.razon?` de <b>${esc(d.prov.razon)}</b>`:""}${d.actualizado?` · último cambio ${fdt(d.actualizado)}`:""}<br>Tus cambios se guardan automáticamente.`;
-    $("portalReg").textContent=`Continuar en paso ${draftStep(d)} →`;
-    $("portalNueva").classList.remove("hidden");
-  } else {
-    $("portalDraft").textContent="Complete los 5 pasos para inscribir a su empresa. Sus cambios se guardan automáticamente.";
-    $("portalReg").textContent="Comenzar inscripción →";
-    $("portalNueva").classList.add("hidden");
-  }
-}
 function goRegistrar(){ if(!SESSION){ afterLogin=null; return go(-2); } const d=draftData(); if(d){ go(draftStep(d)); restorePending(); } else { if(S.step<1||S.step>5) resetForm(); go(1); } }
 function initPortal(){
   document.querySelectorAll("#tabs .tab").forEach(t=>t.onclick=()=>{
-    const tab=t.dataset.tab;
-    if(tab==="registrar"){ if(S.step>=1&&S.step<=5) return; return goRegistrar(); }
-    leaveWizard(); go(tab==="inicio"?-1:0);
+    if(t.dataset.tab==="registrar"){ if(S.step>=1&&S.step<=5) return; return goRegistrar(); }
+    leaveWizard(); go(0);
   });
-  $("portalReg").onclick=goRegistrar;
-  $("portalNueva").onclick=()=>$("btnNueva").click();
-  const buscar=()=>{ $("q").value=$("portalQ").value; hideFicha(); go(0); $("q").focus(); };
-  $("portalBuscar").onclick=buscar;
-  $("portalQ").addEventListener("keydown",e=>{ if(e.key==="Enter") buscar(); });
 }
 
 /* ===================== AUTOGUARDADO ===================== */
@@ -1299,7 +1203,7 @@ try{ if(localStorage.getItem("registroProveedoresSeed")!=="xlsx-v1") loadDemo(tr
 SESSION=readSession();
 STORAGE_KEY = SESSION ? DRAFT_BASE+":"+cleanRut(SESSION.rut) : DRAFT_BASE;
 const recuperado = SESSION ? loadDraft() : false;
-loadStep1(); initHome(); initPortal(); initAuth(); go(-1); restorePending();
+loadStep1(); initHome(); initPortal(); initAuth(); go(0); restorePending();
 if(recuperado) setAutoLabel("✓ Borrador recuperado"+(S.actualizado?" · último cambio "+fdt(S.actualizado):""),"ok");
 </script>
 </body>
