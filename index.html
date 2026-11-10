@@ -82,6 +82,79 @@
   .btn-sm{height:31px;min-width:100px}
   .note{background:var(--ok-bg);color:var(--ok);font-size:12px;font-weight:600;padding:8px 14px;border-radius:4px;flex:1;max-width:450px}
   .right{display:flex;gap:16px}
+  /* Login */
+  .login-wrap{display:flex;justify-content:center;padding:26px 0 10px}
+  .login{width:100%;max-width:460px;border:1px solid #e1e5ec;border-radius:10px;overflow:hidden;box-shadow:0 4px 18px rgba(31,42,107,.06)}
+  .login-tabs{display:flex}
+  .login-tabs button{flex:1;padding:13px;border:0;background:#f4f5f9;font:inherit;font-weight:600;font-size:14px;color:var(--muted);cursor:pointer;border-bottom:2px solid #e1e5ec}
+  .login-tabs button.on{background:#fff;color:var(--red);border-bottom-color:var(--red)}
+  .login form{padding:20px 24px 24px}
+  .login form > div{margin-bottom:10px}
+  .login h3{margin:0 0 4px;color:var(--navy);font-size:17px}
+  .login p.sub{margin:0 0 14px;color:var(--muted);font-size:12.5px}
+  .login input{height:36px}
+  .login .btn{width:100%;margin-top:6px;height:38px}
+  .login .rowx{display:flex;justify-content:space-between;align-items:center;font-size:12px;margin:4px 0 6px}
+  .login .rowx label{display:flex;gap:6px;align-items:center;font-weight:400;margin:0;color:var(--text)}
+  .login .rowx input{width:15px;height:15px}
+  .login .alt{text-align:center;font-size:12.5px;color:var(--muted);margin-top:14px}
+  .login .alt a{color:var(--red);font-weight:600;cursor:pointer}
+  .formerr{background:#fde2e2;color:var(--red);font-size:12.5px;border-radius:4px;padding:8px 10px;margin-bottom:10px;display:none}
+  .formerr.show{display:block}
+  .pwd{position:relative}
+  .pwd button{position:absolute;right:6px;top:5px;background:none;border:0;cursor:pointer;color:var(--muted);font-size:12px}
+  .sessionbox{background:var(--navy-soft);border-radius:6px;padding:9px 12px;font-size:12.5px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center;gap:10px}
+  .sessionbox a{color:var(--red);font-weight:600;cursor:pointer;white-space:nowrap}
+  .user-chip{background:rgba(255,255,255,.18);padding:3px 10px;border-radius:12px}
+  input[readonly]{background:#f2f3f6;color:#555}
+  /* Pestañas */
+  .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
+  .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
+  .tab:hover{color:var(--navy)}
+  .tab.on{color:var(--red);border-bottom-color:var(--red)}
+  .tab .cnt{background:#e6e9f2;color:var(--navy);border-radius:9px;padding:1px 7px;font-size:11px;margin-left:6px}
+  /* Portada */
+  .hero{padding:18px 0 6px}
+  .hero h2{font-size:22px;margin:0 0 4px}
+  .hero p{margin:0;color:var(--muted);font-size:14px}
+  .portal{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:18px}
+  .pcard{border:1px solid #e1e5ec;border-radius:10px;padding:20px 22px;display:flex;flex-direction:column}
+  .pcard h3{margin:0 0 4px;color:var(--navy);font-size:17px}
+  .pcard > p{margin:0 0 14px;color:var(--muted);font-size:13px}
+  .pcard .grow{flex:1}
+  .pcard .cards{grid-template-columns:1fr 1fr;margin-bottom:14px}
+  .mini td{padding:6px 8px;font-size:12px}
+  .steps-list{list-style:none;margin:0 0 14px;padding:0}
+  .steps-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 6px;border-bottom:1px solid #eef0f4;cursor:pointer;border-radius:6px}
+  .steps-list li:hover{background:#f7f8fc}
+  .steps-list .n{flex:0 0 28px;height:28px;border-radius:50%;background:var(--navy-soft);color:var(--navy);font-weight:700;display:flex;align-items:center;justify-content:center;font-size:13px}
+  .steps-list .n.ok{background:var(--navy);color:#fff}
+  .steps-list b{display:block;font-size:13.5px;color:var(--text)}
+  .steps-list small{color:var(--muted);font-size:12px}
+  .steps-list .stt{margin-left:auto;align-self:center}
+  .pactions{display:flex;gap:10px;flex-wrap:wrap}
+  /* Inicio */
+  .home-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap;margin:6px 0 12px}
+  .home-head h2{font-size:18px;margin:8px 0 2px}
+  .home-head .right{gap:10px}
+  .banner{background:#fff6e0;border:1px solid #f0d58a;color:#6b4e00;border-radius:6px;padding:10px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
+  .banner.hidden{display:none}
+  .searchbar{display:grid;grid-template-columns:2.2fr 1fr 1fr;gap:10px;margin-bottom:6px}
+  .searchbar input{height:40px;font-size:14px;padding-left:12px;border-width:1.5px}
+  .searchbar select{height:40px}
+  tr.clk{cursor:pointer}
+  tr.clk:hover td{background:#f7f8fc}
+  tr.sel td{background:#eef1fa}
+  .st{font-size:11px;font-weight:600;padding:2px 9px;border-radius:10px;white-space:nowrap}
+  .st.env{background:var(--ok-bg);color:var(--ok)}
+  .st.bor{background:var(--warn-bg);color:var(--warn)}
+  .empty{text-align:center;color:var(--muted);padding:26px;font-size:13px}
+  mark{background:#ffe58a;padding:0 1px}
+  .ficha-bar{display:flex;justify-content:space-between;align-items:center;margin:22px auto 0;max-width:860px;flex-wrap:wrap;gap:10px}
+  .ficha-bar h2{margin:0}
+  .ficha-bar .right{gap:10px}
+  .otras{max-width:860px;margin:8px auto 0;font-size:12px;color:var(--muted)}
+  .otras button{background:none;border:0;color:var(--red);font-weight:600;cursor:pointer;font-size:12px}
   .autosave{font-size:12px;color:var(--muted);align-self:center;white-space:nowrap}
   .autosave.ok{color:var(--ok)}
   .autosave.err{color:var(--red)}
@@ -132,7 +205,10 @@
     @page{margin:14mm}
   }
   @media(max-width:860px){
+    .portal{grid-template-columns:1fr}
+    .tabs{overflow-x:auto}
     .kv,.totgrid{grid-template-columns:1fr 1fr}
+    .searchbar{grid-template-columns:1fr}
     .grid4,.cards{grid-template-columns:1fr 1fr}
     .cols{grid-template-columns:1fr}
     .cols.split > div + div{border-left:0;padding-left:0}
@@ -143,16 +219,130 @@
 <body>
 <div class="app">
   <header>
-    <div class="brand">
+    <div class="brand" id="brand" style="cursor:pointer">
       <div class="logo">LOGO</div>
       <h1>Registro de Proveedores Electorales <span class="tag">Prototipo</span></h1>
     </div>
-    <nav><a href="#">Mi cuenta</a><span>·</span><a href="#">Ayuda</a><span>·</span><a href="#" id="salir">Salir</a></nav>
+    <nav><a href="#" id="navInicio">Inicio</a><span>·</span><a href="#" id="navCuenta">Iniciar sesión</a><span>·</span><a href="#">Ayuda</a><span id="salirSep">·</span><a href="#" id="salir">Salir</a></nav>
   </header>
+
+  <nav class="tabs" id="tabs">
+    <button class="tab" data-tab="inicio">Inicio</button>
+    <button class="tab" data-tab="registrados">Proveedores registrados <span class="cnt" id="tabCnt">0</span></button>
+    <button class="tab" data-tab="registrar">Registrar proveedor</button>
+  </nav>
 
   <div class="stepper" id="stepper"></div>
 
   <main>
+    <!-- INICIO DE SESIÓN DEL PROVEEDOR -->
+    <section data-step="-2" class="hidden">
+      <div class="login-wrap">
+        <div class="login">
+          <div class="login-tabs">
+            <button type="button" id="ltIn" class="on">Iniciar sesión</button>
+            <button type="button" id="ltUp">Crear cuenta</button>
+          </div>
+          <form id="fLogin" autocomplete="on" novalidate>
+            <h3>Acceso proveedores</h3>
+            <p class="sub">Ingrese con el RUT de la empresa para registrar o continuar su inscripción.</p>
+            <div class="formerr" id="loginErr"></div>
+            <div><label>RUT de la empresa</label><input id="lgRut" placeholder="76.123.456-7" autocomplete="username"></div>
+            <div><label>Contraseña</label><div class="pwd"><input id="lgPass" type="password" autocomplete="current-password"><button type="button" data-eye="lgPass">Mostrar</button></div></div>
+            <div class="rowx"><label><input type="checkbox" id="lgRemember" checked> Mantener sesión iniciada</label><a id="lgForgot" style="color:var(--navy);cursor:pointer">¿Olvidó su contraseña?</a></div>
+            <button class="btn btn-red" type="submit">Ingresar</button>
+            <div class="alt">¿Primera vez? <a id="goUp">Cree una cuenta de proveedor</a></div>
+          </form>
+          <form id="fSignup" class="hidden" autocomplete="on" novalidate>
+            <h3>Crear cuenta de proveedor</h3>
+            <p class="sub">La cuenta queda asociada al RUT de la empresa.</p>
+            <div class="formerr" id="signupErr"></div>
+            <div><label>RUT de la empresa</label><input id="suRut" placeholder="76.123.456-7" autocomplete="username"></div>
+            <div><label>Razón social</label><input id="suRazon" autocomplete="organization"></div>
+            <div><label>Correo electrónico</label><input id="suEmail" type="email" autocomplete="email"></div>
+            <div><label>Contraseña (mínimo 8 caracteres, con letras y números)</label><div class="pwd"><input id="suPass" type="password" autocomplete="new-password"><button type="button" data-eye="suPass">Mostrar</button></div></div>
+            <div><label>Repetir contraseña</label><input id="suPass2" type="password" autocomplete="new-password"></div>
+            <button class="btn btn-red" type="submit">Crear cuenta e ingresar</button>
+            <div class="alt">¿Ya tiene cuenta? <a id="goIn">Inicie sesión</a></div>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <!-- PORTADA -->
+    <section data-step="-1" class="hidden">
+      <div class="hero">
+        <h2>Registro de Proveedores Electorales</h2>
+        <p>Consulte los proveedores inscritos o registre la información de su empresa en 5 pasos.</p>
+      </div>
+      <div class="portal">
+        <div class="pcard">
+          <h3>Proveedores registrados</h3>
+          <p>Resumen de las inscripciones enviadas. Busque por nombre o RUT para ver la ficha completa.</p>
+          <div class="cards" id="portalStats"></div>
+          <div class="grow">
+            <table class="mini"><thead><tr><th>RUT</th><th>Razón social</th><th class="r">Emitido</th><th>Fecha</th></tr></thead><tbody id="portalUltimos"></tbody></table>
+          </div>
+          <div class="searchbar" style="grid-template-columns:1fr auto;margin:14px 0 0">
+            <input id="portalQ" type="search" placeholder="🔍  Buscar por nombre o RUT…">
+            <button class="btn btn-red" id="portalBuscar">Buscar</button>
+          </div>
+        </div>
+        <div class="pcard">
+          <h3>Registrar proveedor</h3>
+          <div class="sessionbox" id="portalSession"></div>
+          <p id="portalDraft">Complete los 5 pasos para inscribir a su empresa. Sus cambios se guardan automáticamente.</p>
+          <ul class="steps-list grow" id="portalSteps"></ul>
+          <div class="pactions">
+            <button class="btn btn-red" id="portalReg">Comenzar inscripción →</button>
+            <button class="btn btn-out hidden" id="portalNueva">Empezar una nueva</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- INICIO: BUSCADOR DE PROVEEDORES -->
+    <section data-step="0" class="hidden">
+      <div class="noprint">
+        <div class="home-head">
+          <div>
+            <h2>Proveedores registrados</h2>
+            <div class="draftinfo" style="margin:0">Busque por razón social, nombre de fantasía, RUT, representante legal, socio o folio.</div>
+          </div>
+          <div class="right">
+            <button class="btn btn-out btn-sm" id="btnImport">Importar</button>
+            <button class="btn btn-out btn-sm" id="btnExport">Exportar registro</button>
+            <button class="btn btn-red btn-sm" id="btnNueva">+ Nueva inscripción</button>
+          </div>
+        </div>
+        <div class="banner hidden" id="draftBanner"></div>
+        <div class="cards" id="homeStats"></div>
+        <div class="searchbar">
+          <input id="q" type="search" placeholder="🔍  Buscar por nombre o RUT…" autocomplete="off">
+          <select id="fCat"></select>
+          <select id="fReg"></select>
+        </div>
+        <div class="draftinfo" id="homeCount" style="margin:6px 0 8px"></div>
+        <table>
+          <thead><tr><th>Estado</th><th>Folio</th><th>RUT</th><th>Razón social</th><th>Categoría</th><th>Comuna</th><th class="r">Emitido</th><th class="r">Pendiente</th><th>Fecha</th></tr></thead>
+          <tbody id="tHome"></tbody>
+        </table>
+        <input type="file" id="fileImport" class="hidden" accept=".json,application/json">
+      </div>
+      <div id="ficha" class="hidden">
+        <div class="ficha-bar noprint">
+          <h2>Ficha del proveedor</h2>
+          <div class="right">
+            <button class="btn btn-red btn-sm" id="fichaPrint">Imprimir / PDF</button>
+            <button class="btn btn-out btn-sm" id="fichaJson">Descargar JSON</button>
+            <button class="btn btn-out btn-sm" id="fichaClose">Cerrar ficha</button>
+          </div>
+        </div>
+        <div class="otras noprint" id="fichaOtras"></div>
+        <div class="cert" id="fichaCert"></div>
+      </div>
+    </section>
+
     <!-- PASO 1 -->
     <section data-step="1">
       <h2>1. Identificación del proveedor</h2>
@@ -302,6 +492,7 @@
         <button class="btn btn-red" id="imprimir">Imprimir / Guardar PDF</button>
         <button class="btn btn-out" id="descJson">Descargar datos (JSON)</button>
         <button class="btn btn-out" id="nueva">Nueva inscripción</button>
+        <button class="btn btn-out" id="aInicio">Ir al inicio</button>
       </div>
       <div class="cert" id="cert"></div>
     </section>
@@ -341,7 +532,8 @@ const REGIONES = {
   "Región de Magallanes":["Punta Arenas","Puerto Natales","Porvenir","Puerto Williams"]
 };
 const STEPS = ["Identificación","Propiedad y vínculos","Documentos","Resumen","Declaración y envío"];
-const STORAGE_KEY = "registroProveedoresBorrador";
+const DRAFT_BASE = "registroProveedoresBorrador";
+let STORAGE_KEY = DRAFT_BASE;   // se vuelve "…:<rut>" al iniciar sesión
 
 /* ===================== ESTADO ===================== */
 const emptyState = () => ({
@@ -391,9 +583,14 @@ function renderStepper(){
 function go(k){
   S.step=k;
   document.querySelectorAll("section[data-step]").forEach(s=>s.classList.toggle("hidden",+s.dataset.step!==k));
-  $("stepper").style.display = k>5?"none":"";
-  $("actions").style.display = k>5?"none":"";
-  $("volver").style.visibility = k===1?"hidden":"visible";
+  const wiz = k>=1 && k<=5;
+  const tab = k===-1?"inicio":(k===0?"registrados":"registrar");
+  updateHeader();
+  document.querySelectorAll("#tabs .tab").forEach(t=>t.classList.toggle("on",t.dataset.tab===tab));
+  $("tabCnt").textContent = getRegs().length;
+  $("stepper").style.display = wiz?"":"none";
+  $("actions").style.display = wiz?"":"none";
+  $("volver").textContent = k===1?"← Inicio":"← Volver";
   $("nota").classList.toggle("hidden",k!==5);
   $("continuar").textContent = k===5?"Enviar inscripción":(k===4?"Ir a declaración →":"Continuar →");
   renderStepper(); renderAll();
@@ -418,6 +615,9 @@ function fillComunas(){
   $("comuna").value = S.prov.comuna;
 }
 function loadStep1(){
+  if(typeof SESSION!=="undefined" && SESSION){ S.prov.rut=SESSION.rut; if(!S.prov.razon) S.prov.razon=SESSION.razon; if(!S.prov.email) S.prov.email=SESSION.email; }
+  $("rut").readOnly = !!(typeof SESSION!=="undefined" && SESSION);
+  $("rut").title = $("rut").readOnly ? "RUT asociado a la cuenta con la que inició sesión" : "";
   P1.forEach(id=>{ if(id!=="comuna") $(id).value=S.prov[id]; });
   fillComunas();
 }
@@ -627,7 +827,7 @@ function commitPending(){
 }
 /* ===================== GENERAL ===================== */
 function validate(s){return [null,validate1,validate2,validate3,validateResumen,validate4][s]();}
-function renderAll(){ if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
+function renderAll(){ if(S.step===-2)renderLogin(); if(S.step===-1)renderPortal(); if(S.step===0)renderHome(); if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
 
 function saveDraft(silent){
   if(!silent) S.guardados.push(new Date().toISOString());
@@ -656,15 +856,23 @@ function submit(){
     declaraciones:["La información entregada es verídica y completa.","Informaré anulaciones, modificaciones y notas de crédito.","Acreditaré el pago cuando la autoridad electoral lo requiera."]};
   payload.codigoVerificacion=hashCode(JSON.stringify(payload));
   /* Aquí se conectaría el backend: fetch("/api/inscripciones",{method:"POST",body:JSON.stringify(payload)}) */
+  if(SESSION) payload.cuenta={rut:SESSION.rut,email:SESSION.email};
   ultimoEnvio=payload;
+  const regs=getRegs(); regs.push(payload); setRegs(regs);
   renderCert(payload);
   clearTimeout(autoTimer);
   try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
   go(6);
 }
-function renderCert(p){
+function stateFrom(p){
+  return {...emptyState(), prov:p.proveedor, socios:p.socios||[], vinculos:p.tieneVinculos?"si":"no", listaVinc:p.vinculos||[],
+    docs:(p.documentosEmitidos||[]).map(({pago,...d})=>d), anulados:p.documentosAnulados||[],
+    pagos:Object.fromEntries((p.documentosEmitidos||[]).map(d=>[d.tipo+"|"+d.num,d.pago||{estado:"Pendiente",fecha:"",archivo:""}]))};
+}
+function renderCert(p,target){ const saved=S; S=stateFrom(p); try{ (target||$("cert")).innerHTML=certHTML(p); } finally { S=saved; } }
+function certHTML(p){
   const t=p.totales;
-  $("cert").innerHTML=`
+  return `
     <div class="cert-top">
       <div><h2>Certificado de inscripción</h2><p>Registro de Proveedores Electorales</p></div>
       <div class="cert-folio">Folio<b>${p.folio}</b>Emitido: ${fdt(p.fechaEnvio)}</div>
@@ -703,16 +911,358 @@ $("continuar").onclick=()=>{
   if(S.step===5) return submit();
   saveDraft(true); go(S.step+1);
 };
-$("volver").onclick=()=>{ commitPending(); go(S.step-1); };
+$("volver").onclick=()=>{ commitPending(); if(S.step===1){ autoSave(); go(-1); } else go(S.step-1); };
 $("guardar").onclick=()=>{ if(!commitPending()) return toast("Hay un registro escrito sin agregar con errores"); saveDraft(false); if(S.step!==4) go(4); else renderResumen(); };
-$("nueva").onclick=()=>{S=emptyState();ultimoEnvio=null;["sRut","sNombre","sPct","vCand","dNum","dMonto","aNum","aNC","aMonto"].forEach(id=>$(id).value="");document.querySelectorAll(".decl").forEach(c=>c.checked=false);document.querySelectorAll("input[name=vinc]").forEach(r=>r.checked=false);loadStep1();go(1);setAutoLabel("");};
+function resetForm(){S=emptyState();ultimoEnvio=null;["sRut","sNombre","sPct","vCand","dNum","dMonto","aNum","aNC","aMonto"].forEach(id=>$(id).value="");document.querySelectorAll(".decl").forEach(c=>c.checked=false);document.querySelectorAll("input[name=vinc]").forEach(r=>r.checked=false);document.querySelectorAll(".err").forEach(e=>e.textContent="");document.querySelectorAll(".invalid").forEach(e=>e.classList.remove("invalid"));loadStep1();setAutoLabel("");}
+$("nueva").onclick=()=>{resetForm();go(1);};
+$("aInicio").onclick=()=>go(-1);
 $("imprimir").onclick=()=>window.print();
 $("descJson").onclick=()=>{ if(!ultimoEnvio) return;
   const a=document.createElement("a");
   a.href=URL.createObjectURL(new Blob([JSON.stringify(ultimoEnvio,null,2)],{type:"application/json"}));
   a.download=ultimoEnvio.folio+".json"; a.click(); };
-$("salir").onclick=e=>{e.preventDefault();saveDraft(true);toast("Sesión cerrada · borrador guardado");};
+$("salir").onclick=e=>{ e.preventDefault(); logout(); };
 $("fileComp").onchange=()=>{const f=$("fileComp").files[0]; if(f&&pendingUpload!=null){ if(f.size>5*1024*1024) return toast("Archivo supera 5 MB"); pago(S.docs[pendingUpload]).archivo=f.name; renderStep4(); toast("Comprobante adjuntado"); }};
+
+/* ===================== INICIO / BUSCADOR ===================== */
+const REG_KEY="registroProveedoresInscripciones";
+let fichaIdx=null;
+function getRegs(){ try{ const a=JSON.parse(localStorage.getItem(REG_KEY)||"[]"); return Array.isArray(a)?a:[]; }catch(e){ return []; } }
+function setRegs(a){ try{ localStorage.setItem(REG_KEY,JSON.stringify(a)); return true; }catch(e){ toast("No se pudo guardar el registro en este navegador"); return false; } }
+const norm = x => String(x||"").normalize("NFD").replace(/[̀-ͯ]/g,"").toLowerCase();
+function haystack(p){
+  const v=p.proveedor||{};
+  return norm([p.folio,v.razon,v.fantasia,v.repNombre,v.rut,cleanRut(v.rut),v.repRut,cleanRut(v.repRut),v.email,v.comuna,v.region,v.categoria,
+    ...(p.socios||[]).flatMap(s=>[s.nombre,s.rut,cleanRut(s.rut)]),
+    ...(p.vinculos||[]).flatMap(x=>[x.persona,x.cand]),
+    ...(p.documentosEmitidos||[]).map(d=>d.cand)].join(" | "));
+}
+function matches(p,q){
+  if(!q.trim()) return true;
+  const h=haystack(p), c=cleanRut(q).toLowerCase();
+  if(/^[\d.\-\s]+[kK]?$/.test(q.trim()) && c.length>=3 && h.includes(c)) return true;          // RUT con o sin puntos/guion
+  return norm(q).split(/\s+/).filter(Boolean).every(t=>h.includes(t));    // todas las palabras
+}
+function hl(text,q){
+  text=esc(text||"—"); const words=norm(q).split(/\s+/).filter(w=>w.length>1); if(!words.length) return text;
+  const plain=norm(text); let out="",i=0;
+  const ranges=[]; words.forEach(w=>{let k=plain.indexOf(w); while(k>-1){ranges.push([k,k+w.length]); k=plain.indexOf(w,k+1);} });
+  if(!ranges.length) return text;
+  ranges.sort((a,b)=>a[0]-b[0]);
+  ranges.forEach(([a,b])=>{ if(a<i) return; out+=text.slice(i,a)+"<mark>"+text.slice(a,b)+"</mark>"; i=b; });
+  return out+text.slice(i);
+}
+function draftData(){
+  try{ const d=JSON.parse(localStorage.getItem(STORAGE_KEY)||"null"); if(d&&d.prov&&(d.prov.razon||d.prov.rut||(d.socios||[]).length||(d.docs||[]).length)) return d; }catch(e){}
+  return null;
+}
+function fillFilters(){
+  $("fCat").innerHTML=`<option value="">Todas las categorías</option>`+[...$("categoria").options].slice(1).map(o=>`<option>${o.value}</option>`).join("");
+  $("fReg").innerHTML=`<option value="">Todas las regiones</option>`+Object.keys(REGIONES).map(r=>`<option>${r}</option>`).join("");
+}
+function renderHome(){
+  const regs=getRegs(), q=$("q").value, cat=$("fCat").value, reg=$("fReg").value;
+  const draft=draftData();
+  // borrador en curso
+  const b=$("draftBanner");
+  if(draft){
+    b.classList.remove("hidden");
+    b.innerHTML=`<span>📝 Tienes una inscripción en borrador${draft.prov.razon?` de <b>${esc(draft.prov.razon)}</b>`:""} · paso ${Math.min(Math.max(draft.step||1,1),5)} de 5${draft.actualizado?` · último cambio ${fdt(draft.actualizado)}`:""}</span>
+      <button class="btn btn-red btn-sm" id="contDraft">Continuar borrador</button>`;
+    $("contDraft").onclick=()=>{ go(Math.min(Math.max(draft.step||1,1),5)); restorePending(); };
+  } else b.classList.add("hidden");
+  // indicadores
+  const ruts=new Set(regs.map(r=>cleanRut(r.proveedor.rut)));
+  const tot=k=>regs.reduce((a,r)=>a+((r.totales||{})[k]||0),0);
+  const conV=regs.filter(r=>r.tieneVinculos).length;
+  $("homeStats").innerHTML=`
+    <div class="card"><small>Proveedores registrados</small><b>${ruts.size}</b></div>
+    <div class="card"><small>Inscripciones enviadas</small><b>${regs.length} · ${conV} con vínculos</b></div>
+    <div class="card"><small>Monto emitido (neto)</small><b>${fmt(tot("neto"))}</b></div>
+    <div class="card"><small>Pendiente de pago</small><b>${fmt(tot("pendiente"))}</b></div>`;
+  // resultados
+  const list=regs.map((r,i)=>({r,i}))
+    .filter(({r})=>matches(r,q)&&(!cat||r.proveedor.categoria===cat)&&(!reg||r.proveedor.region===reg))
+    .sort((a,b)=>String(b.r.fechaEnvio).localeCompare(String(a.r.fechaEnvio)));
+  // si la frase completa aparece tal cual en algún proveedor, mostrar solo esos (más precisos)
+  const frase=norm(q).trim();
+  if(frase.includes(" ")){ const exact=list.filter(({r})=>haystack(r).includes(frase)); if(exact.length){ list.length=0; list.push(...exact); } }
+  let rows="";
+  if(draft && matches({proveedor:draft.prov,socios:draft.socios,vinculos:draft.listaVinc,documentosEmitidos:draft.docs},q) && (!cat||draft.prov.categoria===cat)&&(!reg||draft.prov.region===reg)){
+    rows+=`<tr class="clk" id="rowDraft"><td><span class="st bor">Borrador</span></td><td>—</td><td>${hl(draft.prov.rut,q)}</td><td>${hl(draft.prov.razon||"(sin razón social)",q)}</td><td>${esc(draft.prov.categoria||"—")}</td><td>${esc(draft.prov.comuna||"—")}</td><td class="r">${fmt((draft.docs||[]).reduce((a,d)=>a+d.monto,0))}</td><td class="r">—</td><td>${fdt(draft.actualizado||draft.creado)}</td></tr>`;
+  }
+  rows+=list.map(({r,i})=>`<tr class="clk${i===fichaIdx?" sel":""}" data-ver="${i}">
+      <td><span class="st env">Enviada</span></td><td>${esc(r.folio)}</td><td>${hl(r.proveedor.rut,q)}</td>
+      <td><b>${hl(r.proveedor.razon,q)}</b>${r.proveedor.fantasia?`<br><small style="color:var(--muted)">${hl(r.proveedor.fantasia,q)}</small>`:""}</td>
+      <td>${esc(r.proveedor.categoria)}</td><td>${esc(r.proveedor.comuna)}</td>
+      <td class="r">${fmt(r.totales.neto)}</td><td class="r">${fmt(r.totales.pendiente)}</td><td>${fdt(r.fechaEnvio)}</td></tr>`).join("");
+  $("tHome").innerHTML = rows || `<tr><td colspan="9" class="empty">${regs.length||draft?"No hay proveedores que coincidan con la búsqueda.":`Aún no hay inscripciones registradas.<br><br><button class="btn btn-out btn-sm" id="btnDemo">Cargar datos de ejemplo</button>`}</td></tr>`;
+  $("homeCount").textContent = (q||cat||reg) ? `${list.length} resultado${list.length===1?"":"s"} · haga clic en una fila para ver toda la información` : (regs.length?"Haga clic en una fila para ver toda la información del proveedor":"");
+  document.querySelectorAll("[data-ver]").forEach(tr=>tr.onclick=()=>showFicha(+tr.dataset.ver,true));
+  if($("rowDraft")) $("rowDraft").onclick=()=>{ go(Math.min(Math.max(draft.step||1,1),5)); restorePending(); };
+  if($("btnDemo")) $("btnDemo").onclick=loadDemo;
+  // ficha automática cuando la búsqueda deja un solo proveedor
+  if(q.trim() && list.length===1) showFicha(list[0].i,false);
+  else if(fichaIdx!==null && !list.some(x=>x.i===fichaIdx)) hideFicha();
+}
+function showFicha(i,scroll){
+  const regs=getRegs(), p=regs[i]; if(!p) return;
+  fichaIdx=i;
+  renderCert(p,$("fichaCert"));
+  const mismas=regs.map((r,k)=>({r,k})).filter(({r,k})=>k!==i&&cleanRut(r.proveedor.rut)===cleanRut(p.proveedor.rut));
+  $("fichaOtras").innerHTML = mismas.length ? `Otras inscripciones de este RUT: ${mismas.map(({r,k})=>`<button data-otra="${k}">${esc(r.folio)} (${fdt(r.fechaEnvio)})</button>`).join(" · ")}` : "";
+  document.querySelectorAll("[data-otra]").forEach(bt=>bt.onclick=()=>showFicha(+bt.dataset.otra,true));
+  $("ficha").classList.remove("hidden");
+  document.querySelectorAll("#tHome tr").forEach(tr=>tr.classList.toggle("sel",+tr.dataset.ver===i&&tr.dataset.ver!==undefined));
+  if(scroll) $("ficha").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function hideFicha(){ fichaIdx=null; $("ficha").classList.add("hidden"); }
+function downloadJSON(obj,name){
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:"application/json"}));
+  a.download=name; a.click();
+}
+function loadDemo(){
+  const mk=(prov,socios,vinc,docs,anul,dias)=>{
+    const f=new Date(Date.now()-dias*864e5);
+    const pag=docs.filter(d=>d.pago.estado==="Pagado").reduce((a,d)=>a+d.monto,0), em=docs.reduce((a,d)=>a+d.monto,0), an=anul.reduce((a,d)=>a+d.monto,0);
+    const p={folio:"RPE-"+f.getFullYear()+"-"+String(f.getTime()).slice(-6)+"DM",fechaEnvio:f.toISOString(),inicioBorrador:new Date(f-36e5).toISOString(),guardadosBorrador:[],
+      proveedor:prov,socios,tieneVinculos:vinc.length>0,vinculos:vinc,documentosEmitidos:docs,documentosAnulados:anul,
+      totales:{emitido:em,anulado:an,neto:em-an,pagado:pag,pendiente:em-pag},
+      declaraciones:["La información entregada es verídica y completa.","Informaré anulaciones, modificaciones y notas de crédito.","Acreditaré el pago cuando la autoridad electoral lo requiera."]};
+    p.codigoVerificacion=hashCode(JSON.stringify(p)); return p;
+  };
+  const P=(estado,fecha)=>({estado,fecha:fecha||"",archivo:estado==="Pagado"?"comprobante.pdf":""});
+  const demo=[
+    mk({rut:"76.123.456-0",razon:"Comercial Ejemplo SpA",fantasia:"Ejemplo Publicidad",categoria:"Propaganda y publicidad",repNombre:"Nombre Apellido",repRut:"11.111.111-1",email:"contacto@ejemplo.cl",telefono:"+56 9 1234 5678",region:"Región de Valparaíso",comuna:"Viña del Mar",direccion:"Av. Ejemplo 123, oficina 45"},
+      [{rut:"12.345.678-5",nombre:"Socio A",pct:60,ben:"Sí"},{rut:"9.876.543-3",nombre:"Socio B",pct:40,ben:"No"}],
+      [{persona:"Socio B",tipo:"Parentesco",cand:"Candidatura B · Concejalía"}],
+      [{tipo:"Factura electrónica",num:1523,cand:"Candidatura A",monto:1250000,pago:P("Pagado","2026-10-15")},{tipo:"Factura electrónica",num:1531,cand:"Candidatura B",monto:940000,pago:P("Pagado","2026-10-22")},{tipo:"Boleta de honorarios",num:245,cand:"Candidatura C",monto:950000,pago:P("Pendiente")}],
+      [{num:1498,nc:88,cand:"Candidatura A",monto:480000}],5),
+    mk({rut:"77.654.321-6",razon:"Transportes del Sur Ltda.",fantasia:"TransSur",categoria:"Servicios de transporte",repNombre:"Persona Ficticia Uno",repRut:"13.579.246-K",email:"admin@transsur.cl",telefono:"+56 9 8765 4321",region:"Región del Biobío",comuna:"Concepción",direccion:"Calle Ficticia 456"},
+      [{rut:"13.579.246-K",nombre:"Persona Ficticia Uno",pct:100,ben:"Sí"}],[],
+      [{tipo:"Factura electrónica",num:88,cand:"Candidatura A",monto:780000,pago:P("Pagado","2026-10-30")}],[],3),
+    mk({rut:"78.901.234-1",razon:"Gráfica Austral SpA",fantasia:"",categoria:"Impresiones y gráfica",repNombre:"Persona Ficticia Dos",repRut:"15.432.198-7",email:"ventas@grafaustral.cl",telefono:"+56 2 2345 6789",region:"Región Metropolitana de Santiago",comuna:"Providencia",direccion:"Pasaje Inventado 789"},
+      [{rut:"15.432.198-7",nombre:"Persona Ficticia Dos",pct:70,ben:"Sí"},{rut:"16.789.012-3",nombre:"Socio C",pct:30,ben:"Sí"}],
+      [{persona:"Socio C",tipo:"Militancia",cand:"Partido Ficticio"}],
+      [{tipo:"Factura electrónica",num:3001,cand:"Candidatura C",monto:2100000,pago:P("Pendiente")},{tipo:"Factura exenta",num:3002,cand:"Candidatura B",monto:450000,pago:P("Pagado","2026-11-02")}],[],1)
+  ];
+  setRegs(getRegs().concat(demo)); toast("Datos de ejemplo cargados"); renderHome();
+}
+function initHome(){
+  fillFilters();
+  ["q","fCat","fReg"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",()=>{ if(S.step===0) renderHome(); }));
+  $("btnNueva").onclick=()=>{
+    if(!SESSION){ afterLogin="nueva"; return go(-2); }
+    if(draftData() && !confirm("Tienes un borrador en curso. ¿Descartarlo y comenzar una nueva inscripción?")) return;
+    try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
+    resetForm(); go(1);
+  };
+  $("btnExport").onclick=()=>{ const r=getRegs(); if(!r.length) return toast("No hay inscripciones para exportar"); downloadJSON(r,"registro-proveedores-"+new Date().toISOString().slice(0,10)+".json"); };
+  $("btnImport").onclick=()=>{ $("fileImport").value=""; $("fileImport").click(); };
+  $("fileImport").onchange=async()=>{
+    const f=$("fileImport").files[0]; if(!f) return;
+    try{
+      let data=JSON.parse(await f.text()); if(!Array.isArray(data)) data=[data];
+      const ok=data.filter(p=>p&&p.folio&&p.proveedor&&p.totales);
+      const regs=getRegs(), folios=new Set(regs.map(r=>r.folio));
+      const nuevos=ok.filter(p=>!folios.has(p.folio));
+      setRegs(regs.concat(nuevos));
+      toast(`${nuevos.length} inscripción(es) importada(s)${ok.length-nuevos.length?` · ${ok.length-nuevos.length} ya existían`:""}`);
+      renderHome();
+    }catch(e){ toast("El archivo no es un JSON válido"); }
+  };
+  $("fichaPrint").onclick=()=>window.print();
+  $("fichaJson").onclick=()=>{ const p=getRegs()[fichaIdx]; if(p) downloadJSON(p,p.folio+".json"); };
+  $("fichaClose").onclick=()=>{ hideFicha(); renderHome(); };
+  const toHome=e=>{ e.preventDefault(); leaveWizard(); go(-1); };
+  $("navInicio").onclick=toHome; $("brand").onclick=toHome;
+}
+
+/* ===================== SESIÓN DE PROVEEDOR ===================== */
+/* Prototipo: las cuentas se guardan en este navegador (contraseña con hash SHA-256 + sal).
+   En producción la autenticación debe hacerse en un servidor. */
+const ACC_KEY="registroProveedoresCuentas", SES_KEY="registroProveedoresSesion";
+let SESSION=null, afterLogin=null, fails=0, lockUntil=0;
+function getAccounts(){ try{ return JSON.parse(localStorage.getItem(ACC_KEY)||"{}")||{}; }catch(e){ return {}; } }
+function setAccounts(a){ try{ localStorage.setItem(ACC_KEY,JSON.stringify(a)); return true; }catch(e){ return false; } }
+async function hashPass(pass,salt){
+  const data=salt+"|"+pass;
+  if(window.crypto && crypto.subtle){
+    const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(data));
+    return [...new Uint8Array(buf)].map(b=>b.toString(16).padStart(2,"0")).join("");
+  }
+  return "fnv-"+hashCode(data);
+}
+function readSession(){
+  for(const st of [sessionStorage,localStorage]){ try{ const v=JSON.parse(st.getItem(SES_KEY)||"null"); if(v&&v.rut) return v; }catch(e){} }
+  return null;
+}
+function writeSession(sess,remember){
+  try{ sessionStorage.removeItem(SES_KEY); localStorage.removeItem(SES_KEY); (remember?localStorage:sessionStorage).setItem(SES_KEY,JSON.stringify(sess)); }catch(e){}
+}
+function useAccountDraft(){
+  STORAGE_KEY = SESSION ? DRAFT_BASE+":"+cleanRut(SESSION.rut) : DRAFT_BASE;
+  // migra un borrador antiguo (sin cuenta) si corresponde a este RUT o no tiene RUT
+  if(SESSION){
+    try{
+      const old=JSON.parse(localStorage.getItem(DRAFT_BASE)||"null");
+      if(old && !localStorage.getItem(STORAGE_KEY) && (!old.prov.rut || cleanRut(old.prov.rut)===cleanRut(SESSION.rut))){
+        localStorage.setItem(STORAGE_KEY,JSON.stringify(old)); localStorage.removeItem(DRAFT_BASE);
+      }
+    }catch(e){}
+  }
+  S=emptyState();
+  if(SESSION) loadDraft();
+  resetPendingInputs(); loadStep1(); restorePending();
+}
+function resetPendingInputs(){
+  ["sRut","sNombre","sPct","vCand","dNum","dMonto","aNum","aNC","aMonto"].forEach(id=>$(id).value="");
+  document.querySelectorAll(".err").forEach(e=>e.textContent=""); document.querySelectorAll(".invalid").forEach(e=>e.classList.remove("invalid"));
+  setAutoLabel("");
+}
+function startSession(acc,remember){
+  SESSION={rut:acc.rut,razon:acc.razon,email:acc.email,desde:new Date().toISOString()};
+  writeSession(SESSION,remember);
+  useAccountDraft();
+  toast("Bienvenido, "+acc.razon);
+  const dest=afterLogin; afterLogin=null;
+  if(dest==="nueva"){ $("btnNueva").click(); }
+  else if(typeof dest==="number"){ go(dest>=5&&!validateResumen()?4:dest); }
+  else goRegistrar();
+}
+function logout(){
+  if(!SESSION){ go(-1); return; }
+  leaveWizard();
+  try{ sessionStorage.removeItem(SES_KEY); localStorage.removeItem(SES_KEY); }catch(e){}
+  SESSION=null; useAccountDraft(); go(-1); toast("Sesión cerrada · su borrador quedó guardado");
+}
+function updateHeader(){
+  $("navCuenta").innerHTML = SESSION ? `<span class="user-chip">👤 ${esc(SESSION.razon)}</span>` : "Iniciar sesión";
+  $("salir").style.display = $("salirSep").style.display = SESSION ? "" : "none";
+}
+function showLoginTab(up){
+  $("ltIn").classList.toggle("on",!up); $("ltUp").classList.toggle("on",up);
+  $("fLogin").classList.toggle("hidden",up); $("fSignup").classList.toggle("hidden",!up);
+  ["loginErr","signupErr"].forEach(id=>$(id).classList.remove("show"));
+  setTimeout(()=>$(up?"suRut":"lgRut").focus(),30);
+}
+function renderLogin(){ showLoginTab(false); ["lgPass","suPass","suPass2"].forEach(id=>$(id).value=""); ["loginErr","signupErr"].forEach(id=>$(id).classList.remove("show")); }
+function formErr(id,msg){ const e=$(id); e.textContent=msg; e.classList.toggle("show",!!msg); return false; }
+function initAuth(){
+  $("ltIn").onclick=()=>showLoginTab(false); $("ltUp").onclick=()=>showLoginTab(true);
+  $("goUp").onclick=()=>showLoginTab(true);  $("goIn").onclick=()=>showLoginTab(false);
+  document.querySelectorAll("[data-eye]").forEach(b=>b.onclick=()=>{ const i=$(b.dataset.eye); i.type=i.type==="password"?"text":"password"; b.textContent=i.type==="password"?"Mostrar":"Ocultar"; });
+  ["lgRut","suRut"].forEach(id=>$(id).addEventListener("blur",()=>{ if($(id).value) $(id).value=formatRut($(id).value); }));
+  $("lgForgot").onclick=()=>formErr("loginErr","Para recuperar su contraseña contacte a la mesa de ayuda del registro con el RUT de la empresa.");
+  $("fLogin").onsubmit=async e=>{
+    e.preventDefault();
+    if(Date.now()<lockUntil) return formErr("loginErr",`Demasiados intentos fallidos. Espere ${Math.ceil((lockUntil-Date.now())/1000)} segundos.`);
+    const rut=$("lgRut").value, pass=$("lgPass").value;
+    if(!validRut(rut)) return formErr("loginErr","Ingrese un RUT válido.");
+    if(!pass) return formErr("loginErr","Ingrese su contraseña.");
+    const acc=getAccounts()[cleanRut(rut)];
+    if(!acc || await hashPass(pass,acc.salt)!==acc.hash){
+      fails++; if(fails>=5){ lockUntil=Date.now()+30000; fails=0; }
+      return formErr("loginErr","RUT o contraseña incorrectos.");
+    }
+    fails=0; acc.ultimoAcceso=new Date().toISOString(); const all=getAccounts(); all[cleanRut(rut)]=acc; setAccounts(all);
+    formErr("loginErr",""); startSession(acc,$("lgRemember").checked);
+  };
+  $("fSignup").onsubmit=async e=>{
+    e.preventDefault();
+    const rut=$("suRut").value, razon=$("suRazon").value.trim(), email=$("suEmail").value.trim(), p1=$("suPass").value, p2=$("suPass2").value;
+    if(!validRut(rut)) return formErr("signupErr","Ingrese un RUT de empresa válido.");
+    if(!razon) return formErr("signupErr","Ingrese la razón social.");
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return formErr("signupErr","Ingrese un correo válido.");
+    if(p1.length<8 || !/[a-zA-Z]/.test(p1) || !/\d/.test(p1)) return formErr("signupErr","La contraseña debe tener al menos 8 caracteres, con letras y números.");
+    if(p1!==p2) return formErr("signupErr","Las contraseñas no coinciden.");
+    const all=getAccounts(), key=cleanRut(rut);
+    if(all[key]) return formErr("signupErr","Ya existe una cuenta para este RUT. Inicie sesión.");
+    const salt=[...crypto.getRandomValues(new Uint8Array(12))].map(b=>b.toString(16).padStart(2,"0")).join("");
+    const acc={rut:formatRut(rut),razon,email,salt,hash:await hashPass(p1,salt),creado:new Date().toISOString()};
+    all[key]=acc; if(!setAccounts(all)) return formErr("signupErr","No se pudo crear la cuenta en este navegador.");
+    formErr("signupErr",""); ["suRut","suRazon","suEmail","suPass","suPass2"].forEach(id=>$(id).value="");
+    startSession(acc,true);
+  };
+  $("navCuenta").onclick=e=>{ e.preventDefault(); if(SESSION){ leaveWizard(); go(-1); } else { afterLogin=null; go(-2); } };
+}
+
+/* ===================== PORTADA Y PESTAÑAS ===================== */
+const STEP_INFO=[
+  ["Identificación","RUT, razón social, representante legal, contacto y dirección"],
+  ["Propiedad y vínculos","Socios, beneficiarios finales y vínculos con candidaturas"],
+  ["Documentos","Facturas y boletas emitidas, anulaciones y notas de crédito"],
+  ["Resumen","Revisión de toda la información antes de declarar"],
+  ["Declaración y envío","Estado de pago, comprobantes, declaración y certificado"]
+];
+function leaveWizard(){ if(S.step>=1&&S.step<=5){ commitPending(); autoSave(); } }
+function draftStep(d){ return Math.min(Math.max((d&&d.step)||1,1),5); }
+function stepStatus(d){
+  // estado de cada paso según el borrador (sin marcar errores en pantalla)
+  if(!d) return [0,0,0,0,0];
+  const p=d.prov||{}, soc=d.socios||[], pct=soc.reduce((a,x)=>a+x.pct,0);
+  const s1=P1.every(k=>String(p[k]||"").trim()) && validRut(p.rut) && validRut(p.repRut);
+  const s2=soc.length>0 && Math.abs(pct-100)<0.001 && soc.some(x=>x.ben==="Sí") && (d.vinculos==="no"||(d.vinculos==="si"&&(d.listaVinc||[]).length>0));
+  const s3=(d.docs||[]).length>0;
+  const started=[P1.some(k=>String(p[k]||"").trim()), soc.length>0||!!d.vinculos, (d.docs||[]).length>0||(d.anulados||[]).length>0];
+  return [s1?2:started[0]?1:0, s2?2:started[1]?1:0, s3?2:started[2]?1:0, (s1&&s2&&s3)?2:0, (d.decl||[]).some(Boolean)?1:0];
+}
+function renderPortal(){
+  const regs=getRegs(), d=draftData();
+  const ruts=new Set(regs.map(r=>cleanRut(r.proveedor.rut)));
+  const tot=k=>regs.reduce((a,r)=>a+((r.totales||{})[k]||0),0);
+  $("portalStats").innerHTML=`
+    <div class="card"><small>Proveedores</small><b>${ruts.size}</b></div>
+    <div class="card"><small>Inscripciones</small><b>${regs.length}</b></div>
+    <div class="card"><small>Monto emitido (neto)</small><b>${fmt(tot("neto"))}</b></div>
+    <div class="card"><small>Pendiente de pago</small><b>${fmt(tot("pendiente"))}</b></div>`;
+  const ult=regs.map((r,i)=>({r,i})).sort((a,b)=>String(b.r.fechaEnvio).localeCompare(String(a.r.fechaEnvio))).slice(0,5);
+  $("portalUltimos").innerHTML = ult.length ? ult.map(({r,i})=>`<tr class="clk" data-pver="${i}"><td>${esc(r.proveedor.rut)}</td><td>${esc(r.proveedor.razon)}</td><td class="r">${fmt(r.totales.neto)}</td><td>${fdt(r.fechaEnvio).split(",")[0]}</td></tr>`).join("")
+    : `<tr><td colspan="4" class="empty">Aún no hay proveedores registrados.<br><br><button class="btn btn-out btn-sm" id="portalDemo">Cargar datos de ejemplo</button></td></tr>`;
+  document.querySelectorAll("[data-pver]").forEach(tr=>tr.onclick=()=>{ $("q").value=""; go(0); showFicha(+tr.dataset.pver,true); });
+  if($("portalDemo")) $("portalDemo").onclick=()=>{ loadDemo(); renderPortal(); };
+  // sesión
+  const misEnv = SESSION ? regs.filter(r=>cleanRut(r.proveedor.rut)===cleanRut(SESSION.rut)).length : 0;
+  $("portalSession").innerHTML = SESSION
+    ? `<span>👤 <b>${esc(SESSION.razon)}</b> · ${esc(SESSION.rut)}${misEnv?` · ${misEnv} inscripción${misEnv>1?"es":""} enviada${misEnv>1?"s":""}`:""}</span><a id="psOut">Cerrar sesión</a>`
+    : `<span>🔒 Para registrar información debe iniciar sesión como proveedor.</span><a id="psIn">Iniciar sesión</a>`;
+  if($("psOut")) $("psOut").onclick=logout;
+  if($("psIn")) $("psIn").onclick=()=>{ afterLogin=null; go(-2); };
+  // 5 pasos
+  const st=stepStatus(d), lbl=["No iniciado","En progreso","Completo"];
+  $("portalSteps").innerHTML = STEP_INFO.map(([t,desc],i)=>`<li data-pstep="${i+1}">
+      <span class="n ${st[i]===2?"ok":""}">${st[i]===2?"✓":i+1}</span>
+      <div><b>${t}</b><small>${desc}</small></div>
+      ${d?`<span class="stt st ${st[i]===2?"env":st[i]===1?"bor":""}" style="${st[i]===0?"background:#eef0f4;color:#777":""}">${lbl[st[i]]}</span>`:""}</li>`).join("");
+  document.querySelectorAll("[data-pstep]").forEach(li=>li.onclick=()=>{ const k=+li.dataset.pstep; if(!SESSION){ afterLogin=k; return go(-2); } go(k>=5&&!validateResumen()?4:k); restorePending(); });
+  if(!SESSION){
+    $("portalDraft").textContent="Complete los 5 pasos para inscribir a su empresa. Sus cambios se guardan automáticamente en su cuenta.";
+    $("portalReg").textContent="Iniciar sesión para registrar →";
+    $("portalNueva").classList.add("hidden");
+  } else if(d){
+    $("portalDraft").innerHTML=`Tienes una inscripción en borrador${d.prov.razon?` de <b>${esc(d.prov.razon)}</b>`:""}${d.actualizado?` · último cambio ${fdt(d.actualizado)}`:""}<br>Tus cambios se guardan automáticamente.`;
+    $("portalReg").textContent=`Continuar en paso ${draftStep(d)} →`;
+    $("portalNueva").classList.remove("hidden");
+  } else {
+    $("portalDraft").textContent="Complete los 5 pasos para inscribir a su empresa. Sus cambios se guardan automáticamente.";
+    $("portalReg").textContent="Comenzar inscripción →";
+    $("portalNueva").classList.add("hidden");
+  }
+}
+function goRegistrar(){ if(!SESSION){ afterLogin=null; return go(-2); } const d=draftData(); if(d){ go(draftStep(d)); restorePending(); } else { if(S.step<1||S.step>5) resetForm(); go(1); } }
+function initPortal(){
+  document.querySelectorAll("#tabs .tab").forEach(t=>t.onclick=()=>{
+    const tab=t.dataset.tab;
+    if(tab==="registrar"){ if(S.step>=1&&S.step<=5) return; return goRegistrar(); }
+    leaveWizard(); go(tab==="inicio"?-1:0);
+  });
+  $("portalReg").onclick=goRegistrar;
+  $("portalNueva").onclick=()=>$("btnNueva").click();
+  const buscar=()=>{ $("q").value=$("portalQ").value; hideFicha(); go(0); $("q").focus(); };
+  $("portalBuscar").onclick=buscar;
+  $("portalQ").addEventListener("keydown",e=>{ if(e.key==="Enter") buscar(); });
+}
 
 /* ===================== AUTOGUARDADO ===================== */
 /* Campos de los formularios "Agregar" que se conservan aunque aún no se hayan agregado */
@@ -720,7 +1270,7 @@ const PEND_IDS=["sRut","sNombre","sPct","sBen","vPersona","vTipo","vCand","dTipo
 let autoTimer=null, ultimoAuto=null;
 function setAutoLabel(txt,cls){const el=$("autosave"); el.textContent=txt; el.className="autosave "+(cls||"");}
 function autoSave(){
-  if(S.step>5) return;                         // inscripción ya enviada
+  if(S.step<1 || S.step>5) return;                         // inscripción ya enviada
   S.pend={}; PEND_IDS.forEach(id=>{ if($(id)) S.pend[id]=$(id).value; });
   S.actualizado=new Date().toISOString();
   try{
@@ -730,7 +1280,7 @@ function autoSave(){
   }catch(e){ setAutoLabel("⚠ No se pudo guardar en este navegador","err"); }
 }
 function scheduleAuto(){
-  if(S.step>5) return;
+  if(S.step<1 || S.step>5) return;
   setAutoLabel("Guardando…");
   clearTimeout(autoTimer); autoTimer=setTimeout(autoSave,500);
 }
@@ -746,9 +1296,11 @@ window.addEventListener("beforeunload",()=>{ clearTimeout(autoTimer); autoSave()
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"){ clearTimeout(autoTimer); autoSave(); } });
 
 initStep1(); initStep2(); initStep3();
-const recuperado=loadDraft();
-loadStep1(); go(S.step); restorePending();
-if(recuperado){ toast("Borrador recuperado"); setAutoLabel("✓ Borrador recuperado"+(S.actualizado?" · último cambio "+fdt(S.actualizado):""),"ok"); }
+SESSION=readSession();
+STORAGE_KEY = SESSION ? DRAFT_BASE+":"+cleanRut(SESSION.rut) : DRAFT_BASE;
+const recuperado = SESSION ? loadDraft() : false;
+loadStep1(); initHome(); initPortal(); initAuth(); go(-1); restorePending();
+if(recuperado) setAutoLabel("✓ Borrador recuperado"+(S.actualizado?" · último cambio "+fdt(S.actualizado):""),"ok");
 </script>
 </body>
 </html>
