@@ -157,6 +157,15 @@
   .cert.preview::after{content:"VISTA PRELIMINAR";position:absolute;top:42%;left:50%;transform:translate(-50%,-50%) rotate(-28deg);font-size:76px;font-weight:800;color:rgba(192,0,0,.07);white-space:nowrap;pointer-events:none;letter-spacing:.05em}
   .prelim-box{background:#eef1fa;border:1px solid #c7cde3;color:var(--navy);border-radius:5px;padding:9px 12px;font-size:12px;margin-bottom:12px;line-height:1.45}
   .prelim-box ul{margin:4px 0 0;padding-left:18px;color:var(--red)}
+  .unico{display:flex;gap:12px;align-items:flex-start;border:1.5px solid #c7cde3;background:#f7f8fc;border-radius:8px;padding:12px 14px;margin:0 0 12px;cursor:pointer;font-weight:400;color:var(--text)}
+  .unico:hover{border-color:var(--navy)}
+  .unico input{width:20px;height:20px;margin-top:1px;accent-color:var(--navy);flex:0 0 20px}
+  .unico b{display:block;font-size:14px;color:var(--navy)}
+  .unico small{display:block;font-size:12px;color:var(--muted);margin-top:3px;line-height:1.4}
+  .unico.on{border-color:var(--navy);background:var(--navy-soft)}
+  .unico-info{font-size:12.5px;margin:-4px 0 10px;color:var(--ok)}
+  .unico-info.warn{color:var(--red)}
+  .unico-info a{color:var(--red);font-weight:600;cursor:pointer}
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -387,18 +396,26 @@
     <section data-step="2" class="hidden">
       <div class="cols">
         <div>
-          <h2>2.1 Socios y beneficiarios finales</h2>
+          <h2>2.1 Socios y dueño</h2>
+          <label class="unico" id="unicoBox">
+            <input type="checkbox" id="chkUnico">
+            <div><b>Soy propietario único de la empresa</b>
+              <small>Se registrará al representante legal como único socio y beneficiario final, con 100% de participación. No necesita agregar socios.</small></div>
+          </label>
+          <div class="unico-info hidden" id="unicoInfo"></div>
           <table>
             <thead><tr><th>RUT</th><th>Nombre</th><th class="r">Participación</th><th>Beneficiario final</th><th></th></tr></thead>
             <tbody id="tSocios"></tbody>
           </table>
-          <button class="link" data-toggle="fSocio">+ Agregar socio o beneficiario final</button>
+          <div id="sociosManual">
+          <button class="link" data-toggle="fSocio">+ Agregar socio o dueño</button>
           <div class="inlineform show" id="fSocio">
             <div><label>RUT</label><input id="sRut"></div>
             <div><label>Nombre</label><input id="sNombre"></div>
             <div><label>% Particip.</label><input id="sPct" type="number" min="0" max="100"></div>
             <div><label>Benef. final</label><select id="sBen"><option>Sí</option><option>No</option></select></div>
             <button class="btn btn-red btn-sm" id="addSocio">Agregar</button>
+          </div>
           </div>
           <div class="err" id="errSocios"></div>
         </div>
@@ -574,7 +591,7 @@ let STORAGE_KEY = DRAFT_BASE;   // se vuelve "…:<rut>" al iniciar sesión
 const emptyState = () => ({
   step:1,
   prov:{rut:"",razon:"",categoria:"",repNombre:"",repRut:"",email:"",telefono:"",region:"",comuna:"",direccion:""},
-  socios:[], vinculos:null, listaVinc:[], docs:[], anulados:[], pagos:{}, decl:[false,false,false],
+  socios:[], unico:false, sociosPrev:null, vinculos:null, listaVinc:[], docs:[], anulados:[], pagos:{}, decl:[false,false,false],
   creado:new Date().toISOString(), guardados:[]
 });
 let ultimoEnvio=null;
@@ -669,13 +686,30 @@ function validate1(){
 }
 
 /* ===================== PASO 2 ===================== */
+/* Propietario único: el representante legal queda como socio único 100% */
+function syncUnico(){
+  if(!S.unico) return;
+  const r=S.prov;
+  S.socios = (r.repNombre && validRut(r.repRut)) ? [{rut:formatRut(r.repRut),nombre:r.repNombre,pct:100,ben:"Sí",unico:true}] : [];
+}
 function renderStep2(){
-  $("tSocios").innerHTML = S.socios.length ? S.socios.map((s,i)=>`<tr><td>${esc(s.rut)}</td><td>${esc(s.nombre)}</td><td class="r">${s.pct}%</td><td>${s.ben}</td><td><button class="del" data-dsoc="${i}">✕</button></td></tr>`).join("")
+  syncUnico();
+  $("chkUnico").checked=!!S.unico;
+  $("unicoBox").classList.toggle("on",!!S.unico);
+  $("sociosManual").classList.toggle("hidden",!!S.unico);
+  const inf=$("unicoInfo");
+  if(S.unico){
+    inf.classList.remove("hidden");
+    if(S.socios.length){ inf.className="unico-info"; inf.innerHTML=`✓ Propietario único: <b>${esc(S.prov.repNombre)}</b> (${esc(formatRut(S.prov.repRut))}) · 100% · beneficiario final. Los datos se toman del representante legal del paso 1.`; }
+    else { inf.className="unico-info warn"; inf.innerHTML=`Complete el nombre y RUT del representante legal en el paso 1. <a id="goP1">Ir al paso 1</a>`; $("goP1").onclick=()=>go(1); }
+  } else inf.classList.add("hidden");
+  $("tSocios").innerHTML = S.socios.length ? S.socios.map((s,i)=>`<tr><td>${esc(s.rut)}</td><td>${esc(s.nombre)}</td><td class="r">${s.pct}%</td><td>${s.ben}</td><td>${S.unico?"":`<button class="del" data-dsoc="${i}">✕</button>`}</td></tr>`).join("")
     : `<tr><td colspan="5" style="color:#999">Sin socios declarados</td></tr>`;
   document.querySelectorAll("[data-dsoc]").forEach(b=>b.onclick=()=>{S.socios.splice(+b.dataset.dsoc,1);renderStep2();});
   document.querySelectorAll("input[name=vinc]").forEach(r=>r.checked = r.value===S.vinculos);
   $("vincBox").style.display = S.vinculos==="si"?"":"none";
-  const personas = [...S.socios.map(s=>s.nombre), S.prov.repNombre?`${S.prov.repNombre} (Rep. legal)`:null].filter(Boolean);
+  const repEsSocio = S.socios.some(x=>cleanRut(x.rut)===cleanRut(S.prov.repRut));
+  const personas = [...S.socios.map(s=>s.nombre), (S.prov.repNombre&&!repEsSocio)?`${S.prov.repNombre} (Rep. legal)`:null].filter(Boolean);
   $("vPersona").innerHTML = personas.map(p=>`<option>${esc(p)}</option>`).join("");
   $("tVinc").innerHTML = S.listaVinc.length ? S.listaVinc.map((v,i)=>`<tr><td>${esc(v.persona)}</td><td>${esc(v.tipo)}</td><td>${esc(v.cand)}</td><td><button class="del" data-dvin="${i}">✕</button></td></tr>`).join("")
     : `<tr><td colspan="4" style="color:#999">Sin vínculos registrados</td></tr>`;
@@ -684,6 +718,11 @@ function renderStep2(){
 function initStep2(){
   document.querySelectorAll("[data-toggle]").forEach(b=>b.onclick=()=>$(b.dataset.toggle).classList.toggle("show"));
   $("sRut").addEventListener("blur",()=>{ if($("sRut").value) $("sRut").value=formatRut($("sRut").value); });
+  $("chkUnico").onchange=()=>{
+    if($("chkUnico").checked){ S.sociosPrev=S.socios.filter(x=>!x.unico); S.unico=true; ["sRut","sNombre","sPct"].forEach(i=>$(i).value=""); }
+    else { S.unico=false; S.socios=S.sociosPrev||[]; S.sociosPrev=null; }
+    $("errSocios").textContent=""; renderStep2();
+  };
   $("addSocio").onclick=()=>{
     const rut=$("sRut").value, nombre=$("sNombre").value.trim(), pct=parseFloat($("sPct").value);
     const e=$("errSocios");
@@ -713,9 +752,11 @@ function initStep2(){
   };
 }
 function validate2(){
+  syncUnico();
   let ok=true;
+  if(S.unico && !S.socios.length){ $("errSocios").textContent="Complete el nombre y RUT del representante legal en el paso 1"; ok=false; }
   const tot=S.socios.reduce((a,s)=>a+s.pct,0);
-  if(!S.socios.length){$("errSocios").textContent="Debe declarar al menos un socio o beneficiario final";ok=false;}
+  if(!S.socios.length){$("errSocios").textContent="Debe declarar al menos un socio o dueño";ok=false;}
   else if(Math.abs(tot-100)>0.001){$("errSocios").textContent=`La participación debe sumar 100% (actual: ${tot}%)`;ok=false;}
   else if(!S.socios.some(s=>s.ben==="Sí")){$("errSocios").textContent="Debe indicar al menos un beneficiario final";ok=false;}
   else $("errSocios").textContent="";
@@ -823,7 +864,7 @@ function block(title,step,iss,body){
     ${iss.length?`<ul class="issues">${iss.map(m=>`<li>${esc(m)}</li>`).join("")}</ul>`:""}</div>`;
 }
 function tablaSocios(){
-  return `<table><thead><tr><th>RUT</th><th>Nombre</th><th class="r">Participación</th><th>Beneficiario final</th></tr></thead><tbody>${
+  return `${S.unico?`<p style="font-size:13px;margin:4px 0 8px">✓ <b>Propietario único</b>: el representante legal es dueño del 100% de la empresa y su beneficiario final.</p>`:""}<table><thead><tr><th>RUT</th><th>Nombre</th><th class="r">Participación</th><th>Beneficiario final</th></tr></thead><tbody>${
     S.socios.map(s=>`<tr><td>${esc(s.rut)}</td><td>${esc(s.nombre)}</td><td class="r">${s.pct}%</td><td>${s.ben}</td></tr>`).join("")||`<tr><td colspan="4" style="color:#999">Sin socios</td></tr>`}</tbody></table>`;
 }
 function tablaVinc(){
@@ -873,7 +914,7 @@ function commitPending(){
   const filled=ids=>ids.some(id=>$(id).value.trim()!=="");
   const tryAdd=(ids,btn,errId)=>{ if(!filled(ids)) return true; $(errId).textContent=""; $(btn).click(); return !$(errId).textContent; };
   let ok=true;
-  ok = tryAdd(["sRut","sNombre","sPct"],"addSocio","errSocios") && ok;
+  if(!S.unico) ok = tryAdd(["sRut","sNombre","sPct"],"addSocio","errSocios") && ok;
   if(S.vinculos==="si") ok = tryAdd(["vCand","vOtro"],"addVinc","errVinc") && ok;
   ok = tryAdd(["dNum","dMonto"],"addDoc","errDocs") && ok;
   ok = tryAdd(["aNum","aNC","aMonto"],"addAnul","errDocs") && ok;
@@ -906,7 +947,7 @@ function buildPayload(folio,fecha){
     proveedor:{...S.prov},socios:S.socios,tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
     documentosEmitidos:S.docs.map(d=>({...d,pago:{...pago(d)}})),documentosAnulados:S.anulados,
     totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:sum(pag),pendiente:sum(pen)},
-    declaraciones:DECLARACIONES};
+    propietarioUnico:!!S.unico, declaraciones:DECLARACIONES};
 }
 function showPreview(){
   commitPending();
@@ -928,7 +969,7 @@ function submit(){
     proveedor:S.prov,socios:S.socios,tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
     documentosEmitidos:S.docs.map(d=>({...d,pago:pago(d)})),documentosAnulados:S.anulados,
     totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:sum(pag),pendiente:sum(pen)},
-    declaraciones:DECLARACIONES};
+    propietarioUnico:!!S.unico, declaraciones:DECLARACIONES};
   payload.codigoVerificacion=hashCode(JSON.stringify(payload));
   /* Aquí se conectaría el backend: fetch("/api/inscripciones",{method:"POST",body:JSON.stringify(payload)}) */
   if(SESSION) payload.cuenta={rut:SESSION.rut,email:SESSION.email};
@@ -940,7 +981,7 @@ function submit(){
   go(6);
 }
 function stateFrom(p){
-  return {...emptyState(), prov:p.proveedor, socios:p.socios||[], vinculos:p.tieneVinculos?"si":"no", listaVinc:p.vinculos||[],
+  return {...emptyState(), prov:p.proveedor, unico:!!p.propietarioUnico, socios:p.socios||[], vinculos:p.tieneVinculos?"si":"no", listaVinc:p.vinculos||[],
     docs:(p.documentosEmitidos||[]).map(({pago,...d})=>d), anulados:p.documentosAnulados||[],
     pagos:Object.fromEntries((p.documentosEmitidos||[]).map(d=>[d.tipo+"|"+d.num,d.pago||{estado:"Pendiente",fecha:"",archivo:""}]))};
 }
@@ -959,7 +1000,7 @@ function certHTML(p){
       en la categoría <b>${esc(p.proveedor.categoria)}</b>, con el detalle que se indica a continuación.</p>
 
     <h3>1. Identificación del proveedor</h3>${kvProv()}
-    <h3>2. Socios y beneficiarios finales</h3>${tablaSocios()}
+    <h3>2. Socios y dueño</h3>${tablaSocios()}
     <h3>Vínculos con candidaturas, partidos o administradores</h3>${tablaVinc()}
     <h3>3. Documentos emitidos y estado de pago</h3>${tablaDocs(true)}
     <h3>Documentos pagados por candidatura</h3>${tablaPorCand()}
