@@ -82,7 +82,10 @@
   .btn-sm{height:31px;min-width:100px}
   .note{background:var(--ok-bg);color:var(--ok);font-size:12px;font-weight:600;padding:8px 14px;border-radius:4px;flex:1;max-width:450px}
   .right{display:flex;gap:16px}
-  .toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:5px;font-size:13px;opacity:0;transition:.3s;pointer-events:none}
+  .autosave{font-size:12px;color:var(--muted);align-self:center;white-space:nowrap}
+  .autosave.ok{color:var(--ok)}
+  .autosave.err{color:var(--red)}
+  .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;padding:10px 18px;border-radius:5px;font-size:13px;opacity:0;transition:.3s;pointer-events:none}
   .toast.show{opacity:1}
   .hidden{display:none}
   .done-box{text-align:center;padding:60px 20px}
@@ -184,7 +187,7 @@
             <tbody id="tSocios"></tbody>
           </table>
           <button class="link" data-toggle="fSocio">+ Agregar socio o beneficiario final</button>
-          <div class="inlineform" id="fSocio">
+          <div class="inlineform show" id="fSocio">
             <div><label>RUT</label><input id="sRut"></div>
             <div><label>Nombre</label><input id="sNombre"></div>
             <div><label>% Particip.</label><input id="sPct" type="number" min="0" max="100"></div>
@@ -206,7 +209,7 @@
               <tbody id="tVinc"></tbody>
             </table>
             <button class="link" data-toggle="fVinc">+ Agregar vínculo</button>
-            <div class="inlineform" id="fVinc">
+            <div class="inlineform show" id="fVinc">
               <div><label>Persona</label><select id="vPersona"></select></div>
               <div><label>Tipo</label><select id="vTipo"><option>Parentesco</option><option>Militancia</option><option>Relación laboral</option><option>Administrador electoral</option><option>Otro</option></select></div>
               <div><label>Candidatura / partido</label><input id="vCand" placeholder="Candidatura B · Concejalía"></div>
@@ -308,6 +311,7 @@
     <button class="btn btn-out" id="volver">← Volver</button>
     <div class="note hidden" id="nota">Inscripción gratuita · requisito para reembolsos sobre 30 UF</div>
     <div class="right">
+      <span class="autosave" id="autosave"></span>
       <button class="btn btn-out" id="guardar">Guardar borrador</button>
       <button class="btn btn-red" id="continuar">Continuar →</button>
     </div>
@@ -378,6 +382,7 @@ function renderStepper(){
   }).join("");
   $("stepper").querySelectorAll("[data-go]").forEach(b=>b.onclick=()=>{
     const k=+b.dataset.go; if(S.step>5) return;
+    if(!commitPending()) return toast("Hay un registro escrito sin agregar con errores");
     if(k<=4) return go(k);           // pasos 1-4 siempre navegables (el resumen muestra lo pendiente)
     if(!validateResumen()){ toast("Complete lo pendiente antes de declarar"); return go(4); } go(k);
   });
@@ -608,6 +613,18 @@ function renderResumen(){
   document.querySelectorAll("[data-edit]").forEach(b=>b.onclick=()=>go(+b.dataset.edit));
 }
 
+
+/* Agrega automáticamente lo escrito en los formularios aunque no se haya presionado "Agregar" */
+function commitPending(){
+  const filled=ids=>ids.some(id=>$(id).value.trim()!=="");
+  const tryAdd=(ids,btn,errId)=>{ if(!filled(ids)) return true; $(errId).textContent=""; $(btn).click(); return !$(errId).textContent; };
+  let ok=true;
+  ok = tryAdd(["sRut","sNombre","sPct"],"addSocio","errSocios") && ok;
+  if(S.vinculos==="si") ok = tryAdd(["vCand"],"addVinc","errVinc") && ok;
+  ok = tryAdd(["dNum","dMonto"],"addDoc","errDocs") && ok;
+  ok = tryAdd(["aNum","aNC","aMonto"],"addAnul","errDocs") && ok;
+  return ok;
+}
 /* ===================== GENERAL ===================== */
 function validate(s){return [null,validate1,validate2,validate3,validateResumen,validate4][s]();}
 function renderAll(){ if(S.step===2)renderStep2(); if(S.step===3)renderStep3(); if(S.step===4)renderResumen(); if(S.step===5)renderStep4(); }
@@ -641,6 +658,7 @@ function submit(){
   /* Aquí se conectaría el backend: fetch("/api/inscripciones",{method:"POST",body:JSON.stringify(payload)}) */
   ultimoEnvio=payload;
   renderCert(payload);
+  clearTimeout(autoTimer);
   try{localStorage.removeItem(STORAGE_KEY);}catch(e){}
   go(6);
 }
@@ -680,13 +698,14 @@ function renderCert(p){
 }
 
 $("continuar").onclick=()=>{
+  if(!commitPending()) return toast("Hay un registro escrito sin agregar con errores");
   if(!validate(S.step)) return toast(S.step===4?"Complete lo pendiente antes de declarar":"Revise los campos marcados");
   if(S.step===5) return submit();
   saveDraft(true); go(S.step+1);
 };
-$("volver").onclick=()=>go(S.step-1);
-$("guardar").onclick=()=>{ saveDraft(false); if(S.step!==4) go(4); else renderResumen(); };
-$("nueva").onclick=()=>{S=emptyState();ultimoEnvio=null;loadStep1();go(1);};
+$("volver").onclick=()=>{ commitPending(); go(S.step-1); };
+$("guardar").onclick=()=>{ if(!commitPending()) return toast("Hay un registro escrito sin agregar con errores"); saveDraft(false); if(S.step!==4) go(4); else renderResumen(); };
+$("nueva").onclick=()=>{S=emptyState();ultimoEnvio=null;["sRut","sNombre","sPct","vCand","dNum","dMonto","aNum","aNC","aMonto"].forEach(id=>$(id).value="");document.querySelectorAll(".decl").forEach(c=>c.checked=false);document.querySelectorAll("input[name=vinc]").forEach(r=>r.checked=false);loadStep1();go(1);setAutoLabel("");};
 $("imprimir").onclick=()=>window.print();
 $("descJson").onclick=()=>{ if(!ultimoEnvio) return;
   const a=document.createElement("a");
@@ -695,9 +714,41 @@ $("descJson").onclick=()=>{ if(!ultimoEnvio) return;
 $("salir").onclick=e=>{e.preventDefault();saveDraft(true);toast("Sesión cerrada · borrador guardado");};
 $("fileComp").onchange=()=>{const f=$("fileComp").files[0]; if(f&&pendingUpload!=null){ if(f.size>5*1024*1024) return toast("Archivo supera 5 MB"); pago(S.docs[pendingUpload]).archivo=f.name; renderStep4(); toast("Comprobante adjuntado"); }};
 
+/* ===================== AUTOGUARDADO ===================== */
+/* Campos de los formularios "Agregar" que se conservan aunque aún no se hayan agregado */
+const PEND_IDS=["sRut","sNombre","sPct","sBen","vPersona","vTipo","vCand","dTipo","dNum","dCand","dMonto","aNum","aNC","aMonto","aCand"];
+let autoTimer=null, ultimoAuto=null;
+function setAutoLabel(txt,cls){const el=$("autosave"); el.textContent=txt; el.className="autosave "+(cls||"");}
+function autoSave(){
+  if(S.step>5) return;                         // inscripción ya enviada
+  S.pend={}; PEND_IDS.forEach(id=>{ if($(id)) S.pend[id]=$(id).value; });
+  S.actualizado=new Date().toISOString();
+  try{
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(S));
+    ultimoAuto=new Date();
+    setAutoLabel("✓ Cambios guardados "+ultimoAuto.toLocaleTimeString("es-CL",{hour:"2-digit",minute:"2-digit"}),"ok");
+  }catch(e){ setAutoLabel("⚠ No se pudo guardar en este navegador","err"); }
+}
+function scheduleAuto(){
+  if(S.step>5) return;
+  setAutoLabel("Guardando…");
+  clearTimeout(autoTimer); autoTimer=setTimeout(autoSave,500);
+}
+function restorePending(){
+  if(!S.pend) return;
+  PEND_IDS.forEach(id=>{ const el=$(id); if(el && S.pend[id]!=null && S.pend[id]!=="" && [...(el.options||[{value:S.pend[id]}])].some(o=>o.value===S.pend[id])) el.value=S.pend[id]; });
+}
+/* Cualquier escritura, selección o clic dentro del formulario dispara el guardado */
+["input","change"].forEach(ev=>document.querySelector("main").addEventListener(ev,scheduleAuto));
+document.querySelector(".app").addEventListener("click",e=>{ if(e.target.closest("button,.attach,input[type=radio],input[type=checkbox]")) scheduleAuto(); });
+/* Guardado inmediato al cerrar o cambiar de pestaña */
+window.addEventListener("beforeunload",()=>{ clearTimeout(autoTimer); autoSave(); });
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="hidden"){ clearTimeout(autoTimer); autoSave(); } });
+
 initStep1(); initStep2(); initStep3();
-if(loadDraft()) toast("Borrador recuperado");
-loadStep1(); go(S.step);
+const recuperado=loadDraft();
+loadStep1(); go(S.step); restorePending();
+if(recuperado){ toast("Borrador recuperado"); setAutoLabel("✓ Borrador recuperado"+(S.actualizado?" · último cambio "+fdt(S.actualizado):""),"ok"); }
 </script>
 </body>
 </html>
