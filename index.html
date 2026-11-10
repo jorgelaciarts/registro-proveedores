@@ -109,6 +109,16 @@
   input[readonly]{background:#f2f3f6;color:#555}
   .ejemplo-box{background:#fff6e0;border:1px solid #f0d58a;color:#6b4e00;border-radius:5px;padding:9px 12px;font-size:12px;margin-bottom:12px;line-height:1.45}
   .st.ej{background:#fff1b8;color:#7a5a00;margin-left:4px}
+  .yn{display:inline-flex;border:1px solid var(--border);border-radius:5px;overflow:hidden}
+  .yn button{border:0;background:#fff;padding:4px 13px;font:inherit;font-weight:600;font-size:12px;cursor:pointer;color:#666}
+  .yn button + button{border-left:1px solid var(--border)}
+  .yn button.si.on{background:var(--ok);color:#fff}
+  .yn button.no.on{background:#d9a400;color:#fff}
+  .paynote{font-size:11px;color:var(--muted);display:block;margin-top:3px}
+  .paycand td .st{display:inline-block}
+  .st.par{background:#ffe2c6;color:#8a4b00}
+  .st.sin{background:#fde2e2;color:var(--red)}
+  .help{font-size:12px;color:var(--muted);margin:-6px 0 10px}
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -443,11 +453,14 @@
       <div class="cols" style="grid-template-columns:1.6fr 1fr">
         <div>
           <h2>Registro de pago de documentos emitidos</h2>
+          <p class="help">Indique para cada documento si fue <b>pagado por la candidatura</b>. Si fue pagado, registre la fecha de pago y adjunte el comprobante.</p>
           <table>
-            <thead><tr><th>N°</th><th>Candidatura</th><th class="r">Monto</th><th>Estado de pago</th><th>Fecha de pago</th><th>Comprobante</th></tr></thead>
+            <thead><tr><th>N°</th><th>Candidatura</th><th class="r">Monto</th><th>¿Pagado por la candidatura?</th><th>Fecha de pago</th><th>Comprobante</th></tr></thead>
             <tbody id="tPagos"></tbody>
           </table>
           <div class="total" id="totPagos"></div>
+          <h2 style="margin-top:22px">Documentos pagados por candidatura</h2>
+          <div id="tPorCand"></div>
           <input type="file" id="fileComp" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
         </div>
         <div>
@@ -720,12 +733,14 @@ function renderStep4(){
     const p=pago(d); p.estado==="Pagado"?pag+=d.monto:pen+=d.monto;
     const ok=p.estado==="Pagado";
     return `<tr><td>${d.num.toLocaleString("es-CL")}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>
-      <td><button class="pill ${ok?"ok":"pend"}" data-est="${i}" title="Cambiar estado">${p.estado}</button></td>
+      <td><div class="yn"><button type="button" class="si ${ok?"on":""}" data-pay="${i}" data-v="Pagado">Sí</button><button type="button" class="no ${ok?"":"on"}" data-pay="${i}" data-v="Pendiente">No</button></div>
+        <span class="paynote">${ok?"Pagado por la candidatura":"Pendiente de pago"}</span></td>
       <td>${ok?`<input type="date" data-fec="${i}" value="${p.fecha}">`:"–"}</td>
       <td>${p.archivo?`<span class="attached" title="${esc(p.archivo)}">✓ Adjunto</span> <button class="del" data-rmf="${i}">✕</button>`:`<span class="attach" data-up="${i}">+ Adjuntar</span>`}</td></tr>`;
   }).join("");
-  $("totPagos").textContent = `Pagado: ${fmt(pag)}  ·  Pendiente: ${fmt(pen)}`;
-  document.querySelectorAll("[data-est]").forEach(b=>b.onclick=()=>{const p=pago(S.docs[+b.dataset.est]);p.estado=p.estado==="Pagado"?"Pendiente":"Pagado";if(p.estado==="Pagado"&&!p.fecha)p.fecha=new Date().toISOString().slice(0,10);renderStep4();});
+  $("totPagos").textContent = `Pagado por candidaturas: ${fmt(pag)}  ·  Pendiente: ${fmt(pen)}`;
+  $("tPorCand").innerHTML = tablaPorCand();
+  document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{const p=pago(S.docs[+b.dataset.pay]);p.estado=b.dataset.v;if(p.estado==="Pagado"&&!p.fecha)p.fecha=new Date().toISOString().slice(0,10);if(p.estado!=="Pagado"){p.fecha="";}renderStep4();});
   document.querySelectorAll("[data-fec]").forEach(i=>i.onchange=()=>{pago(S.docs[+i.dataset.fec]).fecha=i.value;});
   document.querySelectorAll("[data-up]").forEach(s=>s.onclick=()=>{pendingUpload=+s.dataset.up;$("fileComp").value="";$("fileComp").click();});
   document.querySelectorAll("[data-rmf]").forEach(b=>b.onclick=()=>{pago(S.docs[+b.dataset.rmf]).archivo="";renderStep4();});
@@ -734,7 +749,7 @@ function renderStep4(){
 function validate4(){
   if(!S.decl.every(Boolean)){$("errDecl").textContent="Debe aceptar las tres declaraciones";return false;}
   const sinFecha=S.docs.filter(d=>pago(d).estado==="Pagado"&&!pago(d).fecha);
-  if(sinFecha.length){$("errDecl").textContent="Indique la fecha de pago de los documentos pagados";return false;}
+  if(sinFecha.length){$("errDecl").textContent="Indique la fecha de pago de los documentos marcados como pagados por la candidatura";return false;}
   return true;
 }
 
@@ -771,9 +786,20 @@ function tablaVinc(){
     S.listaVinc.map(v=>`<tr><td>${esc(v.persona)}</td><td>${esc(v.tipo)}</td><td>${esc(v.cand)}</td></tr>`).join("")||`<tr><td colspan="3" style="color:#999">Sin vínculos</td></tr>`}</tbody></table>`;
 }
 function tablaDocs(conPago){
-  return `<table><thead><tr><th>N°</th><th>Fecha doc.</th><th>Tipo</th><th>Candidatura</th><th class="r">Monto</th>${conPago?"<th>Estado</th><th>Fecha pago</th><th>Comprobante</th>":""}</tr></thead><tbody>${
-    S.docs.map(d=>{const p=pago(d);return `<tr><td>${n0(d.num)}</td><td>${fd(d.fecha)}</td><td>${esc(d.tipo)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>${conPago?`<td>${p.estado}</td><td>${p.estado==="Pagado"?fd(p.fecha):"–"}</td><td>${p.archivo?esc(p.archivo):"–"}</td>`:""}</tr>`;}).join("")
+  return `<table><thead><tr><th>N°</th><th>Fecha doc.</th><th>Tipo</th><th>Candidatura</th><th class="r">Monto</th>${conPago?"<th>Pagado por la candidatura</th><th>Fecha pago</th><th>Comprobante</th>":""}</tr></thead><tbody>${
+    S.docs.map(d=>{const p=pago(d);return `<tr><td>${n0(d.num)}</td><td>${fd(d.fecha)}</td><td>${esc(d.tipo)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>${conPago?`<td>${p.estado==="Pagado"?"Sí":"No (pendiente)"}</td><td>${p.estado==="Pagado"?fd(p.fecha):"–"}</td><td>${p.archivo?esc(p.archivo):"–"}</td>`:""}</tr>`;}).join("")
     ||`<tr><td colspan="${conPago?8:5}" style="color:#999">Sin documentos</td></tr>`}</tbody></table>`;
+}
+function tablaPorCand(){
+  const g={};
+  S.docs.forEach(d=>{ const k=d.cand||"(sin candidatura)", p=pago(d); g[k]=g[k]||{n:0,np:0,tot:0,pag:0}; g[k].n++; g[k].tot+=d.monto; if(p.estado==="Pagado"){g[k].pag+=d.monto;g[k].np++;} });
+  const rows=Object.entries(g).sort((a,b)=>a[0].localeCompare(b[0],"es")).map(([c,v])=>{
+    const pen=v.tot-v.pag, st=v.np===v.n?["env","Pagado completo"]:(v.np===0?["sin","Sin pago"]:["par","Pago parcial"]);
+    return `<tr><td>${esc(c)}</td><td class="r">${v.np} de ${v.n}</td><td class="r">${fmt(v.tot)}</td><td class="r"><b>${fmt(v.pag)}</b></td><td class="r">${fmt(pen)}</td><td><span class="st ${st[0]}">${st[1]}</span></td></tr>`;
+  }).join("");
+  const T=Object.values(g).reduce((a,v)=>({n:a.n+v.n,np:a.np+v.np,tot:a.tot+v.tot,pag:a.pag+v.pag}),{n:0,np:0,tot:0,pag:0});
+  return `<table class="paycand"><thead><tr><th>Candidatura</th><th class="r">Documentos pagados</th><th class="r">Monto facturado</th><th class="r">Pagado por la candidatura</th><th class="r">Pendiente</th><th>Estado</th></tr></thead><tbody>${
+    rows||`<tr><td colspan="6" style="color:#999">Sin documentos</td></tr>`}${rows?`<tr style="font-weight:700;background:#f7f8fc"><td>Total</td><td class="r">${T.np} de ${T.n}</td><td class="r">${fmt(T.tot)}</td><td class="r">${fmt(T.pag)}</td><td class="r">${fmt(T.tot-T.pag)}</td><td></td></tr>`:""}</tbody></table>`;
 }
 function tablaAnul(){
   return `<table><thead><tr><th>N° anulado</th><th>N° NC</th><th>Candidatura</th><th class="r">Monto</th></tr></thead><tbody>${
@@ -868,6 +894,7 @@ function certHTML(p){
     <h3>2. Socios y beneficiarios finales</h3>${tablaSocios()}
     <h3>Vínculos con candidaturas, partidos o administradores</h3>${tablaVinc()}
     <h3>3. Documentos emitidos y estado de pago</h3>${tablaDocs(true)}
+    <h3>Documentos pagados por candidatura</h3>${tablaPorCand()}
     <h3>Documentos anulados</h3>${tablaAnul()}
     <h3>Totales</h3>
     <div class="totgrid">
