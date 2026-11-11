@@ -219,7 +219,12 @@
   .paytable tr.sub .subf{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
   .paytable tr.sub .subf input{flex:1}
   .paytable tr.sub .subf input.op{flex:0 0 160px}
-  .yn button.pa.on{background:#e07b00;color:#fff}
+  .paychk{display:flex;align-items:center;gap:9px;margin:0;font-weight:400;cursor:pointer;white-space:nowrap}
+  .paychk input{width:20px;height:20px;accent-color:var(--navy);flex:0 0 20px}
+  .pst{font-weight:600;font-size:12.5px}
+  .pst.ok{color:var(--ok)}
+  .pst.par{color:#c06a00}
+  .pst.no{color:var(--red)}
   .comp a{color:var(--navy);font-weight:600;cursor:pointer}
   .comp .miss{color:var(--red);font-weight:600;font-size:11.5px;display:block}
   /* Pestañas */
@@ -631,10 +636,10 @@
         <div class="card"><small>Documentos anulados</small><b id="cAnul"></b></div>
       </div>
       <h2>Registro de pago de documentos tributarios emitidos</h2>
-      <p class="help">Para cada documento indique si fue <b>pagado por la candidatura</b> (Sí, Parcial o No). Si recibió pago, registre el monto, la fecha, el medio de pago y adjunte el <b>comprobante de respaldo</b>. Puede agregar el N° de operación y un detalle.</p>
+      <p class="help">Marque la casilla de cada documento <b>pagado por la candidatura</b>. Registre el monto pagado (si es menor al total queda como pago parcial), la fecha, el medio de pago y adjunte el <b>comprobante de respaldo</b>.</p>
       <div class="paywrap">
       <table class="paytable">
-        <thead><tr><th>Documento</th><th>Emisión</th><th>Candidatura</th><th class="r">Monto</th><th>¿Pagado por la candidatura?</th><th class="r">Monto pagado</th><th class="r">Saldo</th><th>Fecha de pago</th><th>Medio de pago</th><th>Comprobante</th></tr></thead>
+        <thead><tr><th>Documento</th><th>Emisión</th><th>Candidatura</th><th class="r">Monto</th><th>Pagado por la candidatura</th><th class="r">Monto pagado</th><th class="r">Saldo</th><th>Fecha de pago</th><th>Medio de pago</th><th>Comprobante</th></tr></thead>
         <tbody id="tPagos"></tbody>
       </table>
       </div>
@@ -949,7 +954,7 @@ function payIssues(){
   const out=[];
   S.docs.forEach(d=>{ const p=pago(d), n="N° "+n0(d.num);
     if(p.estado==="Pendiente") return;
-    if(p.estado==="Parcial" && !(p.monto>0 && p.monto<d.monto)) out.push(`${n}: indique un monto pagado mayor a $0 y menor a ${fmt(d.monto)}`);
+    if(p.estado==="Parcial" && !(p.monto>0)) out.push(`${n}: indique el monto pagado`);
     if(!p.fecha) out.push(`${n}: indique la fecha de pago`);
     else if(d.fecha && p.fecha<d.fecha) out.push(`${n}: la fecha de pago es anterior a la emisión`);
     if(!p.archivo) out.push(`${n}: adjunte el comprobante de pago`);
@@ -964,12 +969,12 @@ function renderStep4(){
   $("cAnul").textContent = `${S.anulados.length} · ${fmt(sum(S.anulados))}`;
   $("tPagos").innerHTML = S.docs.map((d,i)=>{
     const p=pago(d), e=p.estado, paid=e!=="Pendiente";
-    const note = e==="Pagado"?"Pagado en su totalidad":(e==="Parcial"?"Pago parcial":"Pendiente de pago");
+
     return `<tr>
       <td><b>N° ${n0(d.num)}</b><br><small>${esc(d.tipo)}</small></td><td>${fd(d.fecha)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>
-      <td><div class="yn"><button type="button" class="si ${e==="Pagado"?"on":""}" data-pay="${i}" data-v="Pagado">Sí</button><button type="button" class="pa ${e==="Parcial"?"on":""}" data-pay="${i}" data-v="Parcial">Parcial</button><button type="button" class="no ${e==="Pendiente"?"on":""}" data-pay="${i}" data-v="Pendiente">No</button></div>
-        <span class="paynote">${note}</span></td>
-      <td class="r">${e==="Parcial"?`<input class="mp" data-mp="${i}" value="${p.monto?Number(p.monto).toLocaleString("es-CL"):""}" placeholder="$0">`:(e==="Pagado"?fmt(d.monto):"–")}</td>
+      <td><label class="paychk"><input type="checkbox" data-pay="${i}" ${paid?"checked":""}>
+        <span class="pst ${paid?(e==="Parcial"?"par":"ok"):"no"}" data-pst="${i}">${paid?(e==="Parcial"?"✓ Pago parcial":"✓ Pagado"):"✗ Pendiente de pago"}</span></label></td>
+      <td class="r">${paid?`<input class="mp" data-mp="${i}" value="${montoPagado(d,p)?montoPagado(d,p).toLocaleString("es-CL"):""}" placeholder="$0">`:"–"}</td>
       <td class="r" data-saldo="${i}">${fmt(d.monto-pagadoDe(d))}</td>
       <td>${paid?`<input type="date" data-fec="${i}" value="${p.fecha||""}">`:"–"}</td>
       <td>${paid?`<select data-medio="${i}">${MEDIOS.map(m=>`<option ${p.medio===m?"selected":""}>${m}</option>`).join("")}</select>`:"–"}</td>
@@ -977,11 +982,16 @@ function renderStep4(){
     </tr>${paid?`<tr class="sub"><td colspan="10"><div class="subf">N° operación <input class="op" data-op="${i}" value="${esc(p.oper||"")}" placeholder="Ej: 004512889"> Detalle <input data-det="${i}" value="${esc(p.detalle||"")}" placeholder="Ej: banco, cuenta de destino, observaciones del pago"></div></td></tr>`:""}`;
   }).join("") || `<tr><td colspan="10" class="empty">No hay documentos emitidos. Agréguelos en el paso 3.</td></tr>`;
   updatePayTotals();
-  document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{ const p=pago(S.docs[+b.dataset.pay]); p.estado=b.dataset.v;
-    if(p.estado!=="Pendiente"){ if(!p.fecha) p.fecha=new Date().toISOString().slice(0,10); if(!p.medio) p.medio=MEDIOS[0]; }
-    if(p.estado!=="Parcial") delete p.monto;
+  document.querySelectorAll("[data-pay]").forEach(c=>c.onchange=()=>{ const d=S.docs[+c.dataset.pay], p=pago(d);
+    if(c.checked){ p.estado="Pagado"; p.monto=d.monto; if(!p.fecha) p.fecha=new Date().toISOString().slice(0,10); if(!p.medio) p.medio=MEDIOS[0]; }
+    else { p.estado="Pendiente"; delete p.monto; }
     $("errPagos").textContent=""; renderStep4(); });
-  document.querySelectorAll("[data-mp]").forEach(inp=>inp.oninput=()=>{ const v=num(inp.value); inp.value=v?v.toLocaleString("es-CL"):""; pago(S.docs[+inp.dataset.mp]).monto=v; updatePayTotals(); });
+  document.querySelectorAll("[data-mp]").forEach(inp=>inp.oninput=()=>{ const i=+inp.dataset.mp, d=S.docs[i], p=pago(d); let v=num(inp.value);
+    if(v>d.monto){ v=d.monto; }
+    inp.value=v?v.toLocaleString("es-CL"):"";
+    p.monto=v; p.estado = v>=d.monto ? "Pagado" : "Parcial";
+    const st=document.querySelector(`[data-pst="${i}"]`); if(st){ st.className="pst "+(p.estado==="Pagado"?"ok":"par"); st.textContent=p.estado==="Pagado"?"✓ Pagado":"✓ Pago parcial"; }
+    updatePayTotals(); });
   document.querySelectorAll("[data-fec]").forEach(i=>i.onchange=()=>{pago(S.docs[+i.dataset.fec]).fecha=i.value;});
   document.querySelectorAll("[data-medio]").forEach(i=>i.onchange=()=>{pago(S.docs[+i.dataset.medio]).medio=i.value;});
   document.querySelectorAll("[data-op]").forEach(i=>i.oninput=()=>{pago(S.docs[+i.dataset.op]).oper=i.value;});
