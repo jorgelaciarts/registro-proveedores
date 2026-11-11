@@ -236,6 +236,9 @@
   .pst.no{color:var(--red)}
   .comp a{color:var(--navy);font-weight:600;cursor:pointer}
   .comp .miss{color:var(--red);font-weight:600;font-size:11.5px;display:block}
+  .card .csub{display:block;font-size:11.5px;color:var(--muted);margin-top:3px}
+  .card.c-pag b{color:var(--ok)}
+  .card.c-pen b{color:#b25e00}
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -291,9 +294,14 @@
   .ficha-bar .right{gap:10px}
   .otras{max-width:860px;margin:8px auto 0;font-size:12px;color:var(--muted)}
   .otras button{background:none;border:0;color:var(--red);font-weight:600;cursor:pointer;font-size:12px}
-  #tHome td:nth-child(2),#tHome td:nth-child(3),#tHome td:nth-child(7),#tHome td:nth-child(8){white-space:nowrap}
-  #tHome td:nth-child(9){white-space:nowrap;font-size:12px}
-  #tHome td:nth-child(1) .st{display:inline-block;margin:1px 0}
+  #tHome td:nth-child(1),#tHome td:nth-child(2),#tHome td:nth-child(6),#tHome td:nth-child(7),#tHome td:nth-child(8),#tHome td:nth-child(9){white-space:nowrap}
+  #tHome td:nth-child(1){font-size:12px}
+  #tHome .m-pag{color:var(--ok)}
+  #tHome .m-pen{color:#b25e00;font-weight:600}
+  #tHome .m-zero{color:var(--muted)}
+  .home-tot td{font-weight:700;background:#f7f8fc;border-top:2px solid #dfe3ea;padding:9px 10px}
+  .home-tot .m-pag{color:var(--ok)}
+  .home-tot .m-pen{color:#b25e00}
   .autosave{font-size:12px;color:var(--muted);align-self:center;white-space:nowrap}
   .autosave.ok{color:var(--ok)}
   .autosave.err{color:var(--red)}
@@ -492,6 +500,8 @@
             <option value="fecha:asc">Más antiguos</option>
             <option value="emitido:desc">Emitido: mayor a menor</option>
             <option value="emitido:asc">Emitido: menor a mayor</option>
+            <option value="pagado:desc">Pagado: mayor a menor</option>
+            <option value="pagado:asc">Pagado: menor a mayor</option>
             <option value="pendiente:desc">Pendiente: mayor a menor</option>
             <option value="pendiente:asc">Pendiente: menor a mayor</option>
             <option value="razon:asc">Razón social: A–Z</option>
@@ -500,8 +510,9 @@
         </div>
         <div class="draftinfo" id="homeCount" style="margin:6px 0 8px"></div>
         <table>
-          <thead id="hHome"><tr><th>Estado</th><th class="sortable" data-sort="folio">Folio<span class="arr"></span></th><th class="sortable" data-sort="rut">RUT<span class="arr"></span></th><th class="sortable" data-sort="razon">Razón social<span class="arr"></span></th><th class="sortable" data-sort="categoria">Categoría<span class="arr"></span></th><th class="sortable" data-sort="comuna">Comuna<span class="arr"></span></th><th class="r sortable" data-sort="emitido">Emitido<span class="arr"></span></th><th class="r sortable" data-sort="pendiente">Pendiente<span class="arr"></span></th><th class="sortable" data-sort="fecha">Fecha<span class="arr"></span></th></tr></thead>
+          <thead id="hHome"><tr><th class="sortable" data-sort="folio">Folio<span class="arr"></span></th><th class="sortable" data-sort="rut">RUT<span class="arr"></span></th><th class="sortable" data-sort="razon">Razón social<span class="arr"></span></th><th class="sortable" data-sort="categoria">Categoría<span class="arr"></span></th><th class="sortable" data-sort="comuna">Comuna<span class="arr"></span></th><th class="r sortable" data-sort="emitido">Emitido<span class="arr"></span></th><th class="r sortable" data-sort="pagado">Pagado<span class="arr"></span></th><th class="r sortable" data-sort="pendiente">Pendiente de pago<span class="arr"></span></th><th class="sortable" data-sort="fecha">Fecha<span class="arr"></span></th></tr></thead>
           <tbody id="tHome"></tbody>
+          <tfoot id="fHome"></tfoot>
         </table>
       </div>
       <div id="ficha" class="hidden">
@@ -639,10 +650,10 @@
     <section data-step="5" class="hidden">
       <h2>5. Declaración y envío</h2>
       <div class="cards">
-        <div class="card"><small>Proveedor</small><b id="cProv"></b></div>
-        <div class="card"><small>Socios declarados</small><b id="cSoc"></b></div>
-        <div class="card"><small>Documentos emitidos</small><b id="cEmit"></b></div>
-        <div class="card"><small>Documentos anulados</small><b id="cAnul"></b></div>
+        <div class="card"><small>Proveedor</small><b id="cProv"></b><span class="csub" id="cSoc"></span></div>
+        <div class="card"><small>Emitido</small><b id="cEmit"></b><span class="csub" id="cEmitN"></span></div>
+        <div class="card c-pag"><small>Pagado</small><b id="cPag"></b><span class="csub" id="cPagN"></span></div>
+        <div class="card c-pen"><small>Pendiente de pago</small><b id="cPen"></b><span class="csub" id="cPenN"></span></div>
       </div>
       <h2>Registro de pago de documentos tributarios emitidos</h2>
       <p class="help">Para cada documento marque una casilla: <b>Pagado</b>, <b>Pagado parcialmente</b> o <b>Pendiente de pago</b>. Si hubo pago, registre el monto (en pago parcial), la fecha, el medio de pago y adjunte el <b>comprobante de respaldo</b>.</p>
@@ -969,9 +980,8 @@ function payIssues(){
 function verComprobante(p){ if(!p.data) return toast("El comprobante no se puede previsualizar (solo se guardó su nombre)"); const w=window.open(); if(w) w.document.write(`<title>${esc(p.archivo)}</title><iframe src="${p.data}" style="border:0;width:100%;height:100vh"></iframe>`); }
 function renderStep4(){
   $("cProv").textContent = S.prov.razon||"—";
-  $("cSoc").textContent = `${S.socios.length} · ${S.vinculos==="si"?S.listaVinc.length:0} vínculo${S.listaVinc.length===1&&S.vinculos==="si"?"":"s"}`;
-  $("cEmit").textContent = `${S.docs.length} · ${fmt(sum(S.docs))}`;
-  $("cAnul").textContent = `${S.anulados.length} · ${fmt(sum(S.anulados))}`;
+  const nv=S.vinculos==="si"?S.listaVinc.length:0;
+  $("cSoc").textContent = `${S.socios.length} socio${S.socios.length===1?"":"s"} · ${nv} vínculo${nv===1?"":"s"}`;
   $("tPagos").innerHTML = S.docs.map((d,i)=>{
     const p=pago(d), e=p.estado, paid=e!=="Pendiente";
 
@@ -1006,8 +1016,13 @@ function renderStep4(){
   document.querySelectorAll(".decl").forEach((c,i)=>{c.checked=S.decl[i];c.onchange=()=>{S.decl[i]=c.checked;$("errDecl").textContent="";};});
 }
 function updatePayTotals(){
-  const pag=S.docs.reduce((a,d)=>a+pagadoDe(d),0), tot=sum(S.docs);
-  $("totPagos").textContent = `Pagado por candidaturas: ${fmt(pag)}  ·  Pendiente: ${fmt(tot-pag)}`;
+  const pag=S.docs.reduce((a,d)=>a+pagadoDe(d),0), tot=sum(S.docs), anul=sum(S.anulados);
+  const nP=S.docs.filter(d=>pago(d).estado==="Pagado").length, nPa=S.docs.filter(d=>pago(d).estado==="Parcial").length, nPe=S.docs.filter(d=>pago(d).estado==="Pendiente").length;
+  const pl=(n,w)=>`${n} ${w}${n===1?"":"s"}`;
+  $("cEmit").textContent=fmt(tot); $("cEmitN").textContent=pl(S.docs.length,"documento")+(anul?` · anulado ${fmt(anul)}`:"");
+  $("cPag").textContent=fmt(pag); $("cPagN").textContent=pl(nP,"pagado")+(nPa?` · ${pl(nPa,"parcial")}`.replace("parcials","parciales"):"");
+  $("cPen").textContent=fmt(tot-pag); $("cPenN").textContent=pl(nPe+nPa,"documento")+" con saldo";
+  $("totPagos").textContent = `Emitido: ${fmt(tot)}  ·  Pagado: ${fmt(pag)}  ·  Pendiente de pago: ${fmt(tot-pag)}`;
   S.docs.forEach((d,i)=>{ const c=document.querySelector(`[data-saldo="${i}"]`); if(c) c.textContent=fmt(d.monto-pagadoDe(d)); });
 }
 function validate4(){
@@ -1289,10 +1304,12 @@ function renderHome(){
   if(frase.includes(" ")){ const exact=list.filter(({r})=>haystack(r).includes(frase)); if(exact.length){ list.length=0; list.push(...exact); } }
   let rows="";
   rows+=list.map(({r,i})=>`<tr class="clk${i===fichaIdx?" sel":""}" data-ver="${i}">
-      <td><span class="st env">Enviada</span>${r.ejemplo?`<span class="st ej" title="Socios, contacto y pagos ficticios">Ejemplo</span>`:""}</td><td>${esc(r.folio)}</td><td>${hl(r.proveedor.rut,q)}</td>
+      <td>${esc(r.folio)}<br>${r.ejemplo?`<span class="st ej" style="margin:3px 0 0" title="Socios, contacto y pagos ficticios">Ejemplo</span>`:`<span class="st env" style="margin-top:3px;display:inline-block">Enviada</span>`}</td><td>${hl(r.proveedor.rut,q)}</td>
       <td><b>${hl(r.proveedor.razon,q)}</b></td>
       <td>${esc(r.proveedor.categoria)}</td><td>${esc(r.proveedor.comuna)}</td>
-      <td class="r">${fmt(r.totales.neto)}</td><td class="r">${fmt(r.totales.pendiente)}</td><td>${fdt(r.fechaEnvio)}</td></tr>`).join("");
+      <td class="r">${fmt(r.totales.neto)}</td><td class="r m-pag">${fmt(r.totales.pagado||0)}</td><td class="r ${(r.totales.pendiente||0)>0?"m-pen":"m-zero"}">${fmt(r.totales.pendiente||0)}</td><td>${fd(String(r.fechaEnvio).slice(0,10))}</td></tr>`).join("");
+  const T=list.reduce((a,{r})=>({e:a.e+(r.totales.neto||0),p:a.p+(r.totales.pagado||0),n:a.n+(r.totales.pendiente||0)}),{e:0,p:0,n:0});
+  $("fHome").innerHTML = list.length ? `<tr class="home-tot"><td colspan="5">Total ${list.length} proveedor${list.length===1?"":"es"}${(q||cat||reg)?" (según filtros)":""}</td><td class="r">${fmt(T.e)}</td><td class="r m-pag">${fmt(T.p)}</td><td class="r m-pen">${fmt(T.n)}</td><td></td></tr>` : "";
   $("tHome").innerHTML = rows || `<tr><td colspan="9" class="empty">${regs.length?"No hay proveedores que coincidan con la búsqueda.":`Aún no hay inscripciones registradas.<br><br><button class="btn btn-out btn-sm" id="btnDemo">Cargar proveedores de ejemplo (Provedores.xlsx)</button>`}</td></tr>`;
   $("homeCount").textContent = (q||cat||reg) ? `${list.length} resultado${list.length===1?"":"s"} · haga clic en una fila para ver toda la información` : (regs.length?"Haga clic en una fila para ver toda la información del proveedor":"");
   document.querySelectorAll("[data-ver]").forEach(tr=>tr.onclick=()=>showFicha(+tr.dataset.ver,true));
@@ -1341,9 +1358,9 @@ let homeSort={key:"fecha",dir:"desc"};
 const SORT_GET={
   folio:r=>r.folio||"", rut:r=>parseInt(cleanRut(r.proveedor.rut).slice(0,-1))||0, razon:r=>r.proveedor.razon||"",
   categoria:r=>r.proveedor.categoria||"", comuna:r=>r.proveedor.comuna||"",
-  emitido:r=>(r.totales||{}).neto||0, pendiente:r=>(r.totales||{}).pendiente||0, fecha:r=>r.fechaEnvio||""
+  emitido:r=>(r.totales||{}).neto||0, pagado:r=>(r.totales||{}).pagado||0, pendiente:r=>(r.totales||{}).pendiente||0, fecha:r=>r.fechaEnvio||""
 };
-const SORT_DEFAULT_DIR={folio:"asc",rut:"asc",razon:"asc",categoria:"asc",comuna:"asc",emitido:"desc",pendiente:"desc",fecha:"desc"};
+const SORT_DEFAULT_DIR={folio:"asc",rut:"asc",razon:"asc",categoria:"asc",comuna:"asc",emitido:"desc",pagado:"desc",pendiente:"desc",fecha:"desc"};
 function initHome(){
   fillFilters();
   document.querySelectorAll("#hHome th.sortable").forEach(th=>th.onclick=()=>{
