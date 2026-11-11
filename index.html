@@ -652,11 +652,7 @@
       <div class="total" id="totPagos"></div>
       <div class="err" id="errPagos"></div>
       <input type="file" id="fileComp" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
-      <div class="cols" style="grid-template-columns:1.4fr 1fr;margin-top:10px">
-        <div>
-          <h2>Documentos pagados por candidatura</h2>
-          <div id="tPorCand"></div>
-        </div>
+      <div style="margin-top:14px">
         <div>
           <h2>Declaración del proveedor</h2>
           <label class="check"><input type="checkbox" class="decl"> La información entregada es verídica y completa.</label>
@@ -1010,7 +1006,6 @@ function updatePayTotals(){
   const pag=S.docs.reduce((a,d)=>a+pagadoDe(d),0), tot=sum(S.docs);
   $("totPagos").textContent = `Pagado por candidaturas: ${fmt(pag)}  ·  Pendiente: ${fmt(tot-pag)}`;
   S.docs.forEach((d,i)=>{ const c=document.querySelector(`[data-saldo="${i}"]`); if(c) c.textContent=fmt(d.monto-pagadoDe(d)); });
-  $("tPorCand").innerHTML = tablaPorCand();
 }
 function validate4(){
   if(!S.decl.every(Boolean)){$("errDecl").textContent="Debe aceptar las tres declaraciones";return false;}
