@@ -207,6 +207,21 @@
   .hcard p{margin:0 0 18px;color:var(--muted);font-size:13.5px;line-height:1.55;flex:1}
   .hcard .btn{align-self:flex-start;min-width:0;padding:0 18px}
   @media(max-width:860px){ .home-cards{grid-template-columns:1fr} }
+  .paywrap{overflow-x:auto}
+  .paytable{font-size:12.5px;min-width:1050px}
+  .paytable td{vertical-align:middle}
+  .paytable td small{color:var(--muted)}
+  .paytable input,.paytable select{height:28px;font-size:12px;padding:3px 6px}
+  .paytable input[type=date]{width:128px}
+  .paytable select{width:150px}
+  .paytable .mp{width:110px;text-align:right}
+  .paytable tr.sub td{border-top:0;padding-top:0;background:#fafbfd}
+  .paytable tr.sub .subf{display:flex;gap:10px;align-items:center;font-size:12px;color:var(--muted)}
+  .paytable tr.sub .subf input{flex:1}
+  .paytable tr.sub .subf input.op{flex:0 0 160px}
+  .yn button.pa.on{background:#e07b00;color:#fff}
+  .comp a{color:var(--navy);font-weight:600;cursor:pointer}
+  .comp .miss{color:var(--red);font-weight:600;font-size:11.5px;display:block}
   /* Pestañas */
   .tabs{display:flex;gap:4px;padding:0 22px;border-bottom:1px solid #e1e5ec;background:#fafbfd}
   .tab{background:none;border:0;border-bottom:3px solid transparent;padding:12px 16px 10px;font:inherit;font-size:13.5px;font-weight:600;color:var(--muted);cursor:pointer}
@@ -242,7 +257,11 @@
   .home-head .right{gap:10px}
   .banner{background:#fff6e0;border:1px solid #f0d58a;color:#6b4e00;border-radius:6px;padding:10px 14px;font-size:13px;display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:10px}
   .banner.hidden{display:none}
-  .searchbar{display:grid;grid-template-columns:2.2fr 1fr 1fr;gap:10px;margin-bottom:6px}
+  .searchbar{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:10px;margin-bottom:6px}
+  th.sortable{cursor:pointer;user-select:none;white-space:nowrap}
+  th.sortable:hover{background:#e3e8f6}
+  th.sortable .arr{display:inline-block;width:12px;margin-left:4px;color:#9aa3b8;font-size:11px}
+  th.sortable.on .arr{color:var(--red)}
   .searchbar input{height:40px;font-size:14px;padding-left:12px;border-width:1.5px}
   .searchbar select{height:40px}
   tr.clk{cursor:pointer}
@@ -435,7 +454,7 @@
       </div>
       <div class="draftinfo" id="pgCount" style="margin:6px 0 8px"></div>
       <table class="pg-docs">
-        <thead><tr><th>N° doc.</th><th>Fecha doc.</th><th>Proveedor</th><th>Candidatura</th><th class="r">Monto</th><th>Estado de pago</th><th>Fecha de pago</th></tr></thead>
+        <thead><tr><th>N° doc.</th><th>Fecha doc.</th><th>Proveedor</th><th>Candidatura</th><th class="r">Monto</th><th class="r">Pagado</th><th>Estado de pago</th><th>Fecha de pago</th></tr></thead>
         <tbody id="tPgDocs"></tbody>
       </table>
     </section>
@@ -453,10 +472,21 @@
           <input id="q" type="search" placeholder="🔍  Razón social, RUT, representante, socio, candidatura o folio…" autocomplete="off">
           <select id="fCat"></select>
           <select id="fReg"></select>
+          <select id="fSort">
+            <option value="" hidden>Orden por columna</option>
+            <option value="fecha:desc">Más recientes</option>
+            <option value="fecha:asc">Más antiguos</option>
+            <option value="emitido:desc">Emitido: mayor a menor</option>
+            <option value="emitido:asc">Emitido: menor a mayor</option>
+            <option value="pendiente:desc">Pendiente: mayor a menor</option>
+            <option value="pendiente:asc">Pendiente: menor a mayor</option>
+            <option value="razon:asc">Razón social: A–Z</option>
+            <option value="razon:desc">Razón social: Z–A</option>
+          </select>
         </div>
         <div class="draftinfo" id="homeCount" style="margin:6px 0 8px"></div>
         <table>
-          <thead><tr><th>Estado</th><th>Folio</th><th>RUT</th><th>Razón social</th><th>Categoría</th><th>Comuna</th><th class="r">Emitido</th><th class="r">Pendiente</th><th>Fecha</th></tr></thead>
+          <thead id="hHome"><tr><th>Estado</th><th class="sortable" data-sort="folio">Folio<span class="arr"></span></th><th class="sortable" data-sort="rut">RUT<span class="arr"></span></th><th class="sortable" data-sort="razon">Razón social<span class="arr"></span></th><th class="sortable" data-sort="categoria">Categoría<span class="arr"></span></th><th class="sortable" data-sort="comuna">Comuna<span class="arr"></span></th><th class="r sortable" data-sort="emitido">Emitido<span class="arr"></span></th><th class="r sortable" data-sort="pendiente">Pendiente<span class="arr"></span></th><th class="sortable" data-sort="fecha">Fecha<span class="arr"></span></th></tr></thead>
           <tbody id="tHome"></tbody>
         </table>
       </div>
@@ -600,18 +630,21 @@
         <div class="card"><small>Documentos emitidos</small><b id="cEmit"></b></div>
         <div class="card"><small>Documentos anulados</small><b id="cAnul"></b></div>
       </div>
-      <div class="cols" style="grid-template-columns:1.6fr 1fr">
+      <h2>Registro de pago de documentos tributarios emitidos</h2>
+      <p class="help">Para cada documento indique si fue <b>pagado por la candidatura</b> (Sí, Parcial o No). Si recibió pago, registre el monto, la fecha, el medio de pago y adjunte el <b>comprobante de respaldo</b>. Puede agregar el N° de operación y un detalle.</p>
+      <div class="paywrap">
+      <table class="paytable">
+        <thead><tr><th>Documento</th><th>Emisión</th><th>Candidatura</th><th class="r">Monto</th><th>¿Pagado por la candidatura?</th><th class="r">Monto pagado</th><th class="r">Saldo</th><th>Fecha de pago</th><th>Medio de pago</th><th>Comprobante</th></tr></thead>
+        <tbody id="tPagos"></tbody>
+      </table>
+      </div>
+      <div class="total" id="totPagos"></div>
+      <div class="err" id="errPagos"></div>
+      <input type="file" id="fileComp" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
+      <div class="cols" style="grid-template-columns:1.4fr 1fr;margin-top:10px">
         <div>
-          <h2>Registro de pago de documentos emitidos</h2>
-          <p class="help">Indique para cada documento si fue <b>pagado por la candidatura</b>. Si fue pagado, registre la fecha de pago y adjunte el comprobante.</p>
-          <table>
-            <thead><tr><th>N°</th><th>Candidatura</th><th class="r">Monto</th><th>¿Pagado por la candidatura?</th><th>Fecha de pago</th><th>Comprobante</th></tr></thead>
-            <tbody id="tPagos"></tbody>
-          </table>
-          <div class="total" id="totPagos"></div>
-          <h2 style="margin-top:22px">Documentos pagados por candidatura</h2>
+          <h2>Documentos pagados por candidatura</h2>
           <div id="tPorCand"></div>
-          <input type="file" id="fileComp" class="hidden" accept=".pdf,.jpg,.jpeg,.png">
         </div>
         <div>
           <h2>Declaración del proveedor</h2>
@@ -908,33 +941,67 @@ function validate3(){
 /* ===================== PASO 4 ===================== */
 let pendingUpload=null;
 function pago(d){const k=d.tipo+"|"+d.num; return S.pagos[k] ||= {estado:"Pendiente",fecha:"",archivo:""};}
+/* Monto pagado de un documento: Pagado = total, Parcial = monto indicado, Pendiente = 0 */
+function montoPagado(d,p){ p=p||{}; return p.estado==="Pagado" ? d.monto : (p.estado==="Parcial" ? Math.min(p.monto||0,d.monto) : 0); }
+const pagadoDe = d => montoPagado(d,pago(d));
+const MEDIOS=["Transferencia electrónica","Cheque","Vale vista","Depósito bancario","Tarjeta de débito/crédito","Efectivo"];
+function payIssues(){
+  const out=[];
+  S.docs.forEach(d=>{ const p=pago(d), n="N° "+n0(d.num);
+    if(p.estado==="Pendiente") return;
+    if(p.estado==="Parcial" && !(p.monto>0 && p.monto<d.monto)) out.push(`${n}: indique un monto pagado mayor a $0 y menor a ${fmt(d.monto)}`);
+    if(!p.fecha) out.push(`${n}: indique la fecha de pago`);
+    else if(d.fecha && p.fecha<d.fecha) out.push(`${n}: la fecha de pago es anterior a la emisión`);
+    if(!p.archivo) out.push(`${n}: adjunte el comprobante de pago`);
+  });
+  return out;
+}
+function verComprobante(p){ if(!p.data) return toast("El comprobante no se puede previsualizar (solo se guardó su nombre)"); const w=window.open(); if(w) w.document.write(`<title>${esc(p.archivo)}</title><iframe src="${p.data}" style="border:0;width:100%;height:100vh"></iframe>`); }
 function renderStep4(){
   $("cProv").textContent = S.prov.razon||"—";
   $("cSoc").textContent = `${S.socios.length} · ${S.vinculos==="si"?S.listaVinc.length:0} vínculo${S.listaVinc.length===1&&S.vinculos==="si"?"":"s"}`;
   $("cEmit").textContent = `${S.docs.length} · ${fmt(sum(S.docs))}`;
   $("cAnul").textContent = `${S.anulados.length} · ${fmt(sum(S.anulados))}`;
-  let pag=0,pen=0;
   $("tPagos").innerHTML = S.docs.map((d,i)=>{
-    const p=pago(d); p.estado==="Pagado"?pag+=d.monto:pen+=d.monto;
-    const ok=p.estado==="Pagado";
-    return `<tr><td>${d.num.toLocaleString("es-CL")}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>
-      <td><div class="yn"><button type="button" class="si ${ok?"on":""}" data-pay="${i}" data-v="Pagado">Sí</button><button type="button" class="no ${ok?"":"on"}" data-pay="${i}" data-v="Pendiente">No</button></div>
-        <span class="paynote">${ok?"Pagado por la candidatura":"Pendiente de pago"}</span></td>
-      <td>${ok?`<input type="date" data-fec="${i}" value="${p.fecha}">`:"–"}</td>
-      <td>${p.archivo?`<span class="attached" title="${esc(p.archivo)}">✓ Adjunto</span> <button class="del" data-rmf="${i}">✕</button>`:`<span class="attach" data-up="${i}">+ Adjuntar</span>`}</td></tr>`;
-  }).join("");
-  $("totPagos").textContent = `Pagado por candidaturas: ${fmt(pag)}  ·  Pendiente: ${fmt(pen)}`;
-  $("tPorCand").innerHTML = tablaPorCand();
-  document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{const p=pago(S.docs[+b.dataset.pay]);p.estado=b.dataset.v;if(p.estado==="Pagado"&&!p.fecha)p.fecha=new Date().toISOString().slice(0,10);if(p.estado!=="Pagado"){p.fecha="";}renderStep4();});
+    const p=pago(d), e=p.estado, paid=e!=="Pendiente";
+    const note = e==="Pagado"?"Pagado en su totalidad":(e==="Parcial"?"Pago parcial":"Pendiente de pago");
+    return `<tr>
+      <td><b>N° ${n0(d.num)}</b><br><small>${esc(d.tipo)}</small></td><td>${fd(d.fecha)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>
+      <td><div class="yn"><button type="button" class="si ${e==="Pagado"?"on":""}" data-pay="${i}" data-v="Pagado">Sí</button><button type="button" class="pa ${e==="Parcial"?"on":""}" data-pay="${i}" data-v="Parcial">Parcial</button><button type="button" class="no ${e==="Pendiente"?"on":""}" data-pay="${i}" data-v="Pendiente">No</button></div>
+        <span class="paynote">${note}</span></td>
+      <td class="r">${e==="Parcial"?`<input class="mp" data-mp="${i}" value="${p.monto?Number(p.monto).toLocaleString("es-CL"):""}" placeholder="$0">`:(e==="Pagado"?fmt(d.monto):"–")}</td>
+      <td class="r" data-saldo="${i}">${fmt(d.monto-pagadoDe(d))}</td>
+      <td>${paid?`<input type="date" data-fec="${i}" value="${p.fecha||""}">`:"–"}</td>
+      <td>${paid?`<select data-medio="${i}">${MEDIOS.map(m=>`<option ${p.medio===m?"selected":""}>${m}</option>`).join("")}</select>`:"–"}</td>
+      <td class="comp">${!paid?"–":(p.archivo?`<a data-ver="${i}" title="Ver comprobante">📎 ${esc(p.archivo.length>18?p.archivo.slice(0,16)+"…":p.archivo)}</a> <button class="del" data-rmf="${i}" title="Quitar">✕</button>`:`<span class="attach" data-up="${i}">+ Adjuntar</span><span class="miss">Falta respaldo</span>`)}</td>
+    </tr>${paid?`<tr class="sub"><td colspan="10"><div class="subf">N° operación <input class="op" data-op="${i}" value="${esc(p.oper||"")}" placeholder="Ej: 004512889"> Detalle <input data-det="${i}" value="${esc(p.detalle||"")}" placeholder="Ej: banco, cuenta de destino, observaciones del pago"></div></td></tr>`:""}`;
+  }).join("") || `<tr><td colspan="10" class="empty">No hay documentos emitidos. Agréguelos en el paso 3.</td></tr>`;
+  updatePayTotals();
+  document.querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>{ const p=pago(S.docs[+b.dataset.pay]); p.estado=b.dataset.v;
+    if(p.estado!=="Pendiente"){ if(!p.fecha) p.fecha=new Date().toISOString().slice(0,10); if(!p.medio) p.medio=MEDIOS[0]; }
+    if(p.estado!=="Parcial") delete p.monto;
+    $("errPagos").textContent=""; renderStep4(); });
+  document.querySelectorAll("[data-mp]").forEach(inp=>inp.oninput=()=>{ const v=num(inp.value); inp.value=v?v.toLocaleString("es-CL"):""; pago(S.docs[+inp.dataset.mp]).monto=v; updatePayTotals(); });
   document.querySelectorAll("[data-fec]").forEach(i=>i.onchange=()=>{pago(S.docs[+i.dataset.fec]).fecha=i.value;});
-  document.querySelectorAll("[data-up]").forEach(s=>s.onclick=()=>{pendingUpload=+s.dataset.up;$("fileComp").value="";$("fileComp").click();});
-  document.querySelectorAll("[data-rmf]").forEach(b=>b.onclick=()=>{pago(S.docs[+b.dataset.rmf]).archivo="";renderStep4();});
+  document.querySelectorAll("[data-medio]").forEach(i=>i.onchange=()=>{pago(S.docs[+i.dataset.medio]).medio=i.value;});
+  document.querySelectorAll("[data-op]").forEach(i=>i.oninput=()=>{pago(S.docs[+i.dataset.op]).oper=i.value;});
+  document.querySelectorAll("[data-det]").forEach(i=>i.oninput=()=>{pago(S.docs[+i.dataset.det]).detalle=i.value;});
+  document.querySelectorAll("[data-up]").forEach(x=>x.onclick=()=>{pendingUpload=+x.dataset.up;$("fileComp").value="";$("fileComp").click();});
+  document.querySelectorAll("[data-ver]").forEach(a=>a.onclick=()=>verComprobante(pago(S.docs[+a.dataset.ver])));
+  document.querySelectorAll("[data-rmf]").forEach(b=>b.onclick=()=>{const p=pago(S.docs[+b.dataset.rmf]); p.archivo=""; p.data=""; renderStep4();});
   document.querySelectorAll(".decl").forEach((c,i)=>{c.checked=S.decl[i];c.onchange=()=>{S.decl[i]=c.checked;$("errDecl").textContent="";};});
+}
+function updatePayTotals(){
+  const pag=S.docs.reduce((a,d)=>a+pagadoDe(d),0), tot=sum(S.docs);
+  $("totPagos").textContent = `Pagado por candidaturas: ${fmt(pag)}  ·  Pendiente: ${fmt(tot-pag)}`;
+  S.docs.forEach((d,i)=>{ const c=document.querySelector(`[data-saldo="${i}"]`); if(c) c.textContent=fmt(d.monto-pagadoDe(d)); });
+  $("tPorCand").innerHTML = tablaPorCand();
 }
 function validate4(){
   if(!S.decl.every(Boolean)){$("errDecl").textContent="Debe aceptar las tres declaraciones";return false;}
-  const sinFecha=S.docs.filter(d=>pago(d).estado==="Pagado"&&!pago(d).fecha);
-  if(sinFecha.length){$("errDecl").textContent="Indique la fecha de pago de los documentos marcados como pagados por la candidatura";return false;}
+  const pi=payIssues();
+  if(pi.length){ $("errPagos").innerHTML=pi.map(esc).join("<br>"); $("errPagos").scrollIntoView({behavior:"smooth",block:"center"}); return false; }
+  $("errPagos").textContent="";
   return true;
 }
 
@@ -971,15 +1038,20 @@ function tablaVinc(){
     S.listaVinc.map(v=>`<tr><td>${esc(v.persona)}</td><td>${esc(v.tipo)}</td><td>${esc(v.cand)}</td></tr>`).join("")||`<tr><td colspan="3" style="color:#999">Sin vínculos</td></tr>`}</tbody></table>`;
 }
 function tablaDocs(conPago){
-  return `<table><thead><tr><th>N°</th><th>Fecha doc.</th><th>Tipo</th><th>Candidatura</th><th class="r">Monto</th>${conPago?"<th>Pagado por la candidatura</th><th>Fecha pago</th><th>Comprobante</th>":""}</tr></thead><tbody>${
-    S.docs.map(d=>{const p=pago(d);return `<tr><td>${n0(d.num)}</td><td>${fd(d.fecha)}</td><td>${esc(d.tipo)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>${conPago?`<td>${p.estado==="Pagado"?"Sí":"No (pendiente)"}</td><td>${p.estado==="Pagado"?fd(p.fecha):"–"}</td><td>${p.archivo?esc(p.archivo):"–"}</td>`:""}</tr>`;}).join("")
-    ||`<tr><td colspan="${conPago?8:5}" style="color:#999">Sin documentos</td></tr>`}</tbody></table>`;
+  if(!conPago) return `<table><thead><tr><th>N°</th><th>Fecha doc.</th><th>Tipo</th><th>Candidatura</th><th class="r">Monto</th></tr></thead><tbody>${
+    S.docs.map(d=>`<tr><td>${n0(d.num)}</td><td>${fd(d.fecha)}</td><td>${esc(d.tipo)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td></tr>`).join("")||`<tr><td colspan="5" style="color:#999">Sin documentos</td></tr>`}</tbody></table>`;
+  return `<table><thead><tr><th>N°</th><th>Fecha doc.</th><th>Tipo</th><th>Candidatura</th><th class="r">Monto</th><th>Pagado</th><th class="r">Monto pagado</th><th>Fecha pago</th><th>Medio / N° op.</th><th>Comprobante</th></tr></thead><tbody>${
+    S.docs.map(d=>{ const p=pago(d), e=p.estado, paid=e!=="Pendiente";
+      return `<tr><td>${n0(d.num)}</td><td>${fd(d.fecha)}</td><td>${esc(d.tipo)}</td><td>${esc(d.cand)}</td><td class="r">${fmt(d.monto)}</td>
+        <td>${e==="Pagado"?"Sí":(e==="Parcial"?"Parcial":"No")}</td><td class="r">${fmt(montoPagado(d,p))}</td><td>${paid?fd(p.fecha):"–"}</td>
+        <td>${paid?esc(p.medio||"No informado")+(p.oper?`<br><small>N° ${esc(p.oper)}</small>`:""):"–"}</td><td>${p.archivo?esc(p.archivo):"–"}</td></tr>${p.detalle&&paid?`<tr><td></td><td colspan="9" style="font-size:11px;color:var(--muted);border-top:0;padding-top:0">Detalle: ${esc(p.detalle)}</td></tr>`:""}`; }).join("")
+    ||`<tr><td colspan="10" style="color:#999">Sin documentos</td></tr>`}</tbody></table>`;
 }
 function tablaPorCand(){
   const g={};
-  S.docs.forEach(d=>{ const k=d.cand||"(sin candidatura)", p=pago(d); g[k]=g[k]||{n:0,np:0,tot:0,pag:0}; g[k].n++; g[k].tot+=d.monto; if(p.estado==="Pagado"){g[k].pag+=d.monto;g[k].np++;} });
+  S.docs.forEach(d=>{ const k=d.cand||"(sin candidatura)", p=pago(d); g[k]=g[k]||{n:0,np:0,tot:0,pag:0}; g[k].n++; g[k].tot+=d.monto; g[k].pag+=montoPagado(d,p); if(p.estado==="Pagado") g[k].np++; });
   const rows=Object.entries(g).sort((a,b)=>a[0].localeCompare(b[0],"es")).map(([c,v])=>{
-    const pen=v.tot-v.pag, st=v.np===v.n?["env","Pagado completo"]:(v.np===0?["sin","Sin pago"]:["par","Pago parcial"]);
+    const pen=v.tot-v.pag, st=pen<=0?["env","Pagado completo"]:(v.pag===0?["sin","Sin pago"]:["par","Pago parcial"]);
     return `<tr><td>${esc(c)}</td><td class="r">${v.np} de ${v.n}</td><td class="r">${fmt(v.tot)}</td><td class="r"><b>${fmt(v.pag)}</b></td><td class="r">${fmt(pen)}</td><td><span class="st ${st[0]}">${st[1]}</span></td></tr>`;
   }).join("");
   const T=Object.values(g).reduce((a,v)=>({n:a.n+v.n,np:a.np+v.np,tot:a.tot+v.tot,pag:a.pag+v.pag}),{n:0,np:0,tot:0,pag:0});
@@ -1040,11 +1112,12 @@ function hashCode(str){ // FNV-1a 64 bits aprox. en dos mitades → código de v
 }
 const DECLARACIONES=["La información entregada es verídica y completa.","Informaré anulaciones, modificaciones y notas de crédito.","Acreditaré el pago cuando la autoridad electoral lo requiera."];
 function buildPayload(folio,fecha){
-  const pag=S.docs.filter(d=>pago(d).estado==="Pagado"), pen=S.docs.filter(d=>pago(d).estado!=="Pagado");
+  syncUnico();
+  const pagT=S.docs.reduce((a,d)=>a+pagadoDe(d),0);
   return {folio,fechaEnvio:fecha,inicioBorrador:S.creado,guardadosBorrador:S.guardados,
     proveedor:{...S.prov},socios:S.socios,tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
     documentosEmitidos:S.docs.map(d=>({...d,pago:{...pago(d)}})),documentosAnulados:S.anulados,
-    totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:sum(pag),pendiente:sum(pen)},
+    totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:pagT,pendiente:sum(S.docs)-pagT},
     propietarioUnico:!!S.unico, declaraciones:DECLARACIONES};
 }
 function showPreview(){
@@ -1052,7 +1125,7 @@ function showPreview(){
   const p=buildPayload("PRELIMINAR",null);
   p.preliminar=true; p.declAceptadas=[...S.decl]; p.codigoVerificacion="Se asigna al enviar";
   const pend=issues(); p.pendientes=[...pend[1],...pend[2],...pend[3]];
-  if(S.docs.some(d=>pago(d).estado==="Pagado"&&!pago(d).fecha)) p.pendientes.push("Falta la fecha de pago de documentos marcados como pagados por la candidatura");
+  p.pendientes.push(...payIssues());
   if(!S.decl.every(Boolean)) p.pendientes.push("Faltan declaraciones por aceptar");
   renderCert(p,$("previewCert"));
   $("preview").classList.remove("hidden"); document.body.classList.add("previewing");
@@ -1060,13 +1133,14 @@ function showPreview(){
 }
 function closePreview(){ $("preview").classList.add("hidden"); document.body.classList.remove("previewing"); }
 function submit(){
+  syncUnico();
   const ahora=new Date();
   const folio="RPE-"+ahora.getFullYear()+"-"+String(Date.now()).slice(-6)+Math.random().toString(36).slice(2,4).toUpperCase();
-  const pag=S.docs.filter(d=>pago(d).estado==="Pagado"), pen=S.docs.filter(d=>pago(d).estado!=="Pagado");
+  const pagT=S.docs.reduce((a,d)=>a+pagadoDe(d),0);
   const payload={folio,fechaEnvio:ahora.toISOString(),inicioBorrador:S.creado,guardadosBorrador:S.guardados,
     proveedor:S.prov,socios:S.socios,tieneVinculos:S.vinculos==="si",vinculos:S.vinculos==="si"?S.listaVinc:[],
     documentosEmitidos:S.docs.map(d=>({...d,pago:pago(d)})),documentosAnulados:S.anulados,
-    totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:sum(pag),pendiente:sum(pen)},
+    totales:{emitido:sum(S.docs),anulado:sum(S.anulados),neto:sum(S.docs)-sum(S.anulados),pagado:pagT,pendiente:sum(S.docs)-pagT},
     propietarioUnico:!!S.unico, declaraciones:DECLARACIONES};
   payload.codigoVerificacion=hashCode(JSON.stringify(payload));
   /* Aquí se conectaría el backend: fetch("/api/inscripciones",{method:"POST",body:JSON.stringify(payload)}) */
@@ -1144,7 +1218,9 @@ $("descJson").onclick=()=>{ if(!ultimoEnvio) return;
   a.href=URL.createObjectURL(new Blob([JSON.stringify(ultimoEnvio,null,2)],{type:"application/json"}));
   a.download=ultimoEnvio.folio+".json"; a.click(); };
 $("salir").onclick=e=>{ e.preventDefault(); logout(); };
-$("fileComp").onchange=()=>{const f=$("fileComp").files[0]; if(f&&pendingUpload!=null){ if(f.size>5*1024*1024) return toast("Archivo supera 5 MB"); pago(S.docs[pendingUpload]).archivo=f.name; renderStep4(); toast("Comprobante adjuntado"); }};
+$("fileComp").onchange=()=>{const f=$("fileComp").files[0]; if(f&&pendingUpload!=null){ if(f.size>5*1024*1024) return toast("Archivo supera 5 MB"); const p=pago(S.docs[pendingUpload]); const idx=pendingUpload;
+  const done=data=>{ p.archivo=f.name; p.data=data; renderStep4(); scheduleAuto(); toast("Comprobante adjuntado"); };
+  if(f.size<=400*1024){ const fr=new FileReader(); fr.onload=()=>done(fr.result); fr.onerror=()=>done(""); fr.readAsDataURL(f); } else done(""); }};
 
 /* ===================== INICIO / BUSCADOR ===================== */
 const REG_KEY="registroProveedoresInscripciones";
@@ -1187,7 +1263,14 @@ function renderHome(){
   // resultados
   const list=regs.map((r,i)=>({r,i}))
     .filter(({r})=>matches(r,q)&&(!cat||r.proveedor.categoria===cat)&&(!reg||r.proveedor.region===reg))
-    .sort((a,b)=>String(b.r.fechaEnvio).localeCompare(String(a.r.fechaEnvio)));
+    .sort((a,b)=>{
+      const v=SORT_GET[homeSort.key], x=v(a.r), y=v(b.r);
+      const c = (typeof x==="number" && typeof y==="number") ? x-y : String(x).localeCompare(String(y),"es",{numeric:true,sensitivity:"base"});
+      return (homeSort.dir==="asc"?c:-c) || String(b.r.fechaEnvio).localeCompare(String(a.r.fechaEnvio));
+    });
+  // indicador de orden en los encabezados
+  document.querySelectorAll("#hHome th.sortable").forEach(th=>{ const on=th.dataset.sort===homeSort.key; th.classList.toggle("on",on); th.querySelector(".arr").textContent = on ? (homeSort.dir==="asc"?"▲":"▼") : "↕"; });
+  const sv=homeSort.key+":"+homeSort.dir; $("fSort").value = [...$("fSort").options].some(o=>o.value===sv) ? sv : "";
   // si la frase completa aparece tal cual en algún proveedor, mostrar solo esos (más precisos)
   const frase=norm(q).trim();
   if(frase.includes(" ")){ const exact=list.filter(({r})=>haystack(r).includes(frase)); if(exact.length){ list.length=0; list.push(...exact); } }
@@ -1241,8 +1324,21 @@ function loadDemo(silent){
   try{ localStorage.setItem("registroProveedoresSeed","xlsx-v2"); }catch(e){}
   if(!silent){ toast(`${SEED_XLSX.length} proveedores cargados desde Provedores.xlsx`); if(S.step===0) renderHome(); }
 }
+let homeSort={key:"fecha",dir:"desc"};
+const SORT_GET={
+  folio:r=>r.folio||"", rut:r=>parseInt(cleanRut(r.proveedor.rut).slice(0,-1))||0, razon:r=>r.proveedor.razon||"",
+  categoria:r=>r.proveedor.categoria||"", comuna:r=>r.proveedor.comuna||"",
+  emitido:r=>(r.totales||{}).neto||0, pendiente:r=>(r.totales||{}).pendiente||0, fecha:r=>r.fechaEnvio||""
+};
+const SORT_DEFAULT_DIR={folio:"asc",rut:"asc",razon:"asc",categoria:"asc",comuna:"asc",emitido:"desc",pendiente:"desc",fecha:"desc"};
 function initHome(){
   fillFilters();
+  document.querySelectorAll("#hHome th.sortable").forEach(th=>th.onclick=()=>{
+    const k=th.dataset.sort;
+    homeSort = homeSort.key===k ? {key:k,dir:homeSort.dir==="asc"?"desc":"asc"} : {key:k,dir:SORT_DEFAULT_DIR[k]};
+    renderHome();
+  });
+  $("fSort").addEventListener("change",()=>{ if(!$("fSort").value) return; const [key,dir]=$("fSort").value.split(":"); homeSort={key,dir}; renderHome(); });
   ["q","fCat","fReg"].forEach(id=>$(id).addEventListener(id==="q"?"input":"change",()=>{ if(S.step===0) renderHome(); }));
   $("fichaPrint").onclick=()=>window.print();
   $("fichaJson").onclick=()=>{ const p=getRegs()[fichaIdx]; if(p) downloadJSON(p,p.folio+".json"); };
@@ -1397,8 +1493,8 @@ let pgCandSel="", pgShowAll=false;
 const hoyISO = () => new Date().toISOString().slice(0,10);
 const diasEntre = (a,b) => Math.round((new Date(b)-new Date(a))/864e5);
 function infoDoc(d){
-  const p=d.pago||{}, pagado = p.estado==="Pagado" ? d.monto : 0;
-  return {pag:p.estado==="Pagado", pagado, saldo:d.monto-pagado, fecha:p.estado==="Pagado"?(p.fecha||""):"", dias:d.fecha?diasEntre(d.fecha,hoyISO()):null};
+  const p=d.pago||{}, pagado = montoPagado(d,p);
+  return {pag:p.estado==="Pagado", parc:p.estado==="Parcial", pagado, saldo:d.monto-pagado, fecha:p.estado!=="Pendiente"?(p.fecha||""):"", dias:d.fecha?diasEntre(d.fecha,hoyISO()):null};
 }
 function allDocs(){
   const out=[];
@@ -1436,9 +1532,9 @@ function renderPagos(){
   const sP=list.reduce((a,x)=>a+x.i.pagado,0), sT=list.reduce((a,x)=>a+x.d.monto,0);
   $("pgCount").innerHTML=`${list.length} documento${list.length===1?"":"s"} · facturado ${fmt(sT)} · pagado ${fmt(sP)} · pendiente <b style="color:var(--navy)">${fmt(sT-sP)}</b>`;
   $("tPgDocs").innerHTML = list.map(({r,d,i})=>`<tr><td>${n0(d.num)}</td><td>${fd(d.fecha)}</td><td><b>${esc(r.proveedor.razon)}</b><br><small>${esc(r.proveedor.rut)}</small></td><td>${esc(d.cand)}</td>
-      <td class="r">${fmt(d.monto)}</td>
-      <td>${i.pag?`<span class="st env">Pagado</span>`:`<span class="st bor">Pendiente</span><span class="age ${i.dias>30?"late":""}">${i.dias!=null?i.dias+" días desde emisión":""}</span>`}</td>
-      <td>${i.pag?fd(i.fecha):"–"}</td></tr>`).join("") || `<tr><td colspan="7" class="empty">No hay documentos que coincidan con el filtro.</td></tr>`;
+      <td class="r">${fmt(d.monto)}</td><td class="r">${fmt(i.pagado)}</td>
+      <td>${i.pag?`<span class="st env">Pagado</span>`:`<span class="st ${i.parc?"par":"bor"}">${i.parc?"Pago parcial":"Pendiente"}</span><span class="age ${i.dias>30?"late":""}">${i.dias!=null?i.dias+" días desde emisión":""}</span>`}</td>
+      <td>${i.fecha?fd(i.fecha):"–"}</td></tr>`).join("") || `<tr><td colspan="8" class="empty">No hay documentos que coincidan con el filtro.</td></tr>`;
 }
 function initPagos(){
   $("pgQ").addEventListener("input",()=>{ if(S.step===-3) renderPagos(); });
